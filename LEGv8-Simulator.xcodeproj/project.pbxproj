@@ -7,19 +7,36 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		403D871828E125AE002E5E4A /* Interpreter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 403D871728E125AE002E5E4A /* Interpreter.swift */; };
+		403D871A28E1EF38002E5E4A /* ConsoleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 403D871928E1EF38002E5E4A /* ConsoleView.swift */; };
+		403D871C28E214BD002E5E4A /* ConsoleRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 403D871B28E214BD002E5E4A /* ConsoleRowView.swift */; };
 		4043649428E0C4020052F25D /* LEGv8_SimulatorApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4043649328E0C4020052F25D /* LEGv8_SimulatorApp.swift */; };
 		4043649628E0C4020052F25D /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4043649528E0C4020052F25D /* ContentView.swift */; };
 		4043649828E0C4030052F25D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4043649728E0C4030052F25D /* Assets.xcassets */; };
 		4043649B28E0C4030052F25D /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4043649A28E0C4030052F25D /* Preview Assets.xcassets */; };
+		404364A828E0D6F00052F25D /* asm.js in Resources */ = {isa = PBXBuildFile; fileRef = 404364A728E0D6F00052F25D /* asm.js */; };
+		404364AA28E0DD620052F25D /* CPUModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 404364A928E0DD620052F25D /* CPUModel.swift */; };
+		404364B028E0DDE70052F25D /* Tokenizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 404364AF28E0DDE70052F25D /* Tokenizer.swift */; };
+		40FC5AF628E27F6000532886 /* SwiftyMonaco in Frameworks */ = {isa = PBXBuildFile; productRef = 40FC5AF528E27F6000532886 /* SwiftyMonaco */; };
+		40FC5AF828E28A2400532886 /* FileIO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40FC5AF728E28A2400532886 /* FileIO.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		403D871728E125AE002E5E4A /* Interpreter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Interpreter.swift; sourceTree = "<group>"; };
+		403D871928E1EF38002E5E4A /* ConsoleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsoleView.swift; sourceTree = "<group>"; };
+		403D871B28E214BD002E5E4A /* ConsoleRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsoleRowView.swift; sourceTree = "<group>"; };
 		4043649028E0C4020052F25D /* LEGv8-Simulator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "LEGv8-Simulator.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		4043649328E0C4020052F25D /* LEGv8_SimulatorApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LEGv8_SimulatorApp.swift; sourceTree = "<group>"; };
 		4043649528E0C4020052F25D /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		4043649728E0C4030052F25D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		4043649A28E0C4030052F25D /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		4043649C28E0C4030052F25D /* LEGv8_Simulator.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LEGv8_Simulator.entitlements; sourceTree = "<group>"; };
+		404364A728E0D6F00052F25D /* asm.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = asm.js; sourceTree = "<group>"; };
+		404364A928E0DD620052F25D /* CPUModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CPUModel.swift; sourceTree = "<group>"; };
+		404364AF28E0DDE70052F25D /* Tokenizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tokenizer.swift; sourceTree = "<group>"; };
+		40FC5AF328E27F3400532886 /* SwiftyMonaco */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = SwiftyMonaco; path = ../SwiftyMonaco; sourceTree = "<group>"; };
+		40FC5AF728E28A2400532886 /* FileIO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileIO.swift; sourceTree = "<group>"; };
+		40FC5AF928E28CCA00532886 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -27,6 +44,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				40FC5AF628E27F6000532886 /* SwiftyMonaco in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -36,8 +54,10 @@
 		4043648728E0C4020052F25D = {
 			isa = PBXGroup;
 			children = (
+				409A8B9128E27E550052363E /* Packages */,
 				4043649228E0C4020052F25D /* LEGv8-Simulator */,
 				4043649128E0C4020052F25D /* Products */,
+				40FC5AF428E27F6000532886 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -52,8 +72,12 @@
 		4043649228E0C4020052F25D /* LEGv8-Simulator */ = {
 			isa = PBXGroup;
 			children = (
+				40FC5AF928E28CCA00532886 /* Info.plist */,
 				4043649328E0C4020052F25D /* LEGv8_SimulatorApp.swift */,
-				4043649528E0C4020052F25D /* ContentView.swift */,
+				404364AC28E0DD700052F25D /* Views */,
+				404364AB28E0DD680052F25D /* Models */,
+				404364B128E0DDF00052F25D /* Utils */,
+				404364A728E0D6F00052F25D /* asm.js */,
 				4043649728E0C4030052F25D /* Assets.xcassets */,
 				4043649C28E0C4030052F25D /* LEGv8_Simulator.entitlements */,
 				4043649928E0C4030052F25D /* Preview Content */,
@@ -67,6 +91,49 @@
 				4043649A28E0C4030052F25D /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		404364AB28E0DD680052F25D /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				404364A928E0DD620052F25D /* CPUModel.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		404364AC28E0DD700052F25D /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				4043649528E0C4020052F25D /* ContentView.swift */,
+				403D871928E1EF38002E5E4A /* ConsoleView.swift */,
+				403D871B28E214BD002E5E4A /* ConsoleRowView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		404364B128E0DDF00052F25D /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				404364AF28E0DDE70052F25D /* Tokenizer.swift */,
+				403D871728E125AE002E5E4A /* Interpreter.swift */,
+				40FC5AF728E28A2400532886 /* FileIO.swift */,
+			);
+			path = Utils;
+			sourceTree = "<group>";
+		};
+		409A8B9128E27E550052363E /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+				40FC5AF328E27F3400532886 /* SwiftyMonaco */,
+			);
+			name = Packages;
+			sourceTree = "<group>";
+		};
+		40FC5AF428E27F6000532886 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -85,6 +152,9 @@
 			dependencies = (
 			);
 			name = "LEGv8-Simulator";
+			packageProductDependencies = (
+				40FC5AF528E27F6000532886 /* SwiftyMonaco */,
+			);
 			productName = "LEGv8-Simulator";
 			productReference = 4043649028E0C4020052F25D /* LEGv8-Simulator.app */;
 			productType = "com.apple.product-type.application";
@@ -113,6 +183,8 @@
 				Base,
 			);
 			mainGroup = 4043648728E0C4020052F25D;
+			packageReferences = (
+			);
 			productRefGroup = 4043649128E0C4020052F25D /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -127,6 +199,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				404364A828E0D6F00052F25D /* asm.js in Resources */,
 				4043649B28E0C4030052F25D /* Preview Assets.xcassets in Resources */,
 				4043649828E0C4030052F25D /* Assets.xcassets in Resources */,
 			);
@@ -139,8 +212,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				403D871C28E214BD002E5E4A /* ConsoleRowView.swift in Sources */,
 				4043649628E0C4020052F25D /* ContentView.swift in Sources */,
+				404364B028E0DDE70052F25D /* Tokenizer.swift in Sources */,
+				404364AA28E0DD620052F25D /* CPUModel.swift in Sources */,
 				4043649428E0C4020052F25D /* LEGv8_SimulatorApp.swift in Sources */,
+				403D871A28E1EF38002E5E4A /* ConsoleView.swift in Sources */,
+				403D871828E125AE002E5E4A /* Interpreter.swift in Sources */,
+				40FC5AF828E28A2400532886 /* FileIO.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -274,6 +353,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "LEGv8-Simulator/Info.plist";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -301,6 +381,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "LEGv8-Simulator/Info.plist";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -336,6 +417,13 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		40FC5AF528E27F6000532886 /* SwiftyMonaco */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SwiftyMonaco;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 4043648828E0C4020052F25D /* Project object */;
 }

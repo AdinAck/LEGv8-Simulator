@@ -21,18 +21,16 @@ struct SettingsView: View {
                         .frame(width: 100)
                 }
             }
+            .frame(width: 400, height: 400)
             .tabItem {
                 Label("Settings", systemImage: "gear")
             }
             
-            List {
-                Text("Test")
-            }
+            AboutView()
             .tabItem {
                 Label("About", systemImage: "info.circle")
             }
         }
-        .frame(width: 400, height: 400)
     }
 }
 

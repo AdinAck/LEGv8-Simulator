@@ -20,6 +20,7 @@
 		4080D12228E3FD9D00DCA947 /* Document.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4080D12128E3FD9D00DCA947 /* Document.swift */; };
 		4080D12528E4002200DCA947 /* SwiftyMonaco in Frameworks */ = {isa = PBXBuildFile; productRef = 4080D12428E4002200DCA947 /* SwiftyMonaco */; };
 		4080D12728E4081200DCA947 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4080D12628E4081200DCA947 /* SettingsView.swift */; };
+		4080D12B28E40CF400DCA947 /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4080D12A28E40CF400DCA947 /* AboutView.swift */; };
 		40FC5AF628E27F6000532886 /* SwiftyMonaco in Frameworks */ = {isa = PBXBuildFile; productRef = 40FC5AF528E27F6000532886 /* SwiftyMonaco */; };
 /* End PBXBuildFile section */
 
@@ -38,6 +39,7 @@
 		404364AF28E0DDE70052F25D /* Tokenizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tokenizer.swift; sourceTree = "<group>"; };
 		4080D12128E3FD9D00DCA947 /* Document.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Document.swift; sourceTree = "<group>"; };
 		4080D12628E4081200DCA947 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		4080D12A28E40CF400DCA947 /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
 		40FC5AF928E28CCA00532886 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -108,9 +110,8 @@
 			isa = PBXGroup;
 			children = (
 				4043649528E0C4020052F25D /* ContentView.swift */,
-				403D871928E1EF38002E5E4A /* ConsoleView.swift */,
-				403D871B28E214BD002E5E4A /* ConsoleRowView.swift */,
-				4080D12628E4081200DCA947 /* SettingsView.swift */,
+				4080D12928E40CAD00DCA947 /* Console */,
+				4080D12828E40CA500DCA947 /* Settings */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -122,6 +123,24 @@
 				403D871728E125AE002E5E4A /* Interpreter.swift */,
 			);
 			path = Utils;
+			sourceTree = "<group>";
+		};
+		4080D12828E40CA500DCA947 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				4080D12628E4081200DCA947 /* SettingsView.swift */,
+				4080D12A28E40CF400DCA947 /* AboutView.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		4080D12928E40CAD00DCA947 /* Console */ = {
+			isa = PBXGroup;
+			children = (
+				403D871928E1EF38002E5E4A /* ConsoleView.swift */,
+				403D871B28E214BD002E5E4A /* ConsoleRowView.swift */,
+			);
+			path = Console;
 			sourceTree = "<group>";
 		};
 		40FC5AF428E27F6000532886 /* Frameworks */ = {
@@ -213,6 +232,7 @@
 				403D871C28E214BD002E5E4A /* ConsoleRowView.swift in Sources */,
 				4043649628E0C4020052F25D /* ContentView.swift in Sources */,
 				4080D12728E4081200DCA947 /* SettingsView.swift in Sources */,
+				4080D12B28E40CF400DCA947 /* AboutView.swift in Sources */,
 				404364B028E0DDE70052F25D /* Tokenizer.swift in Sources */,
 				404364AA28E0DD620052F25D /* CPUModel.swift in Sources */,
 				4043649428E0C4020052F25D /* LEGv8_SimulatorApp.swift in Sources */,

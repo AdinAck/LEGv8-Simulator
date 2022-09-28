@@ -148,7 +148,7 @@ struct ContentView: View {
                     } label: {
                         Image(systemName: "forward.end.fill")
                     }
-                    .keyboardShortcut("n")
+                    .keyboardShortcut("k")
                     .help("Step")
                 
                     Button {
@@ -163,7 +163,7 @@ struct ContentView: View {
                     } label: {
                         Image(systemName: "play.fill")
                     }
-                    .keyboardShortcut("r")
+                    .keyboardShortcut("l")
                     .help("Run/Continue")
                 
                     Button {
@@ -174,6 +174,7 @@ struct ContentView: View {
                         }
                     }
                     .disabled(!interpreter.running)
+                    .keyboardShortcut("j")
                     .help("Stop")
             }
         }

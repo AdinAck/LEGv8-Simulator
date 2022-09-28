@@ -41,12 +41,18 @@ class Interpreter: ObservableObject {
         log = []
     }
     
-    private func literalToInt64(_ literal: String) -> Int64 {
+    private func literalToInt64(_ literal: String) throws -> Int64 {
         if literal.contains("x") {
-            return Int64(String(literal[literal.index(after: literal.firstIndex(of: "x")!)...]), radix: 16)!
+            if let result = Int64(String(literal[literal.index(after: literal.firstIndex(of: "x")!)...]), radix: 16) {
+                return result
+            }
         } else {
-            return Int64(literal)!
+            if let result = Int64(literal) {
+                return result
+            }
         }
+        
+        throw CPUError.invalidLiteral(literal)
     }
     
     private func writeToLog(_ message: String, type: LineType = .normal) {
@@ -57,7 +63,7 @@ class Interpreter: ObservableObject {
     }
     
     private func isValidLabel(_ label: String) throws {
-        guard labelMap.keys.contains(label) else { throw CPUError.invalidLabel }
+        guard labelMap.keys.contains(label) else { throw CPUError.invalidLabel(label) }
     }
     
     func b(_ label: String) throws {
@@ -205,26 +211,29 @@ class Interpreter: ObservableObject {
                 running = false
                 tokenizer.cursor = 0
             default:
-                writeToLog("[UnknownInstruction] Line \(tokenizer.cursor)", type: .error)
+                writeToLog("[UnknownInstruction] Unkown instruction \"\(instruction)\".", type: .error)
                 running = false
             }
-        } catch CPUError.invalidRegister {
-            writeToLog("[InvalidRegister] Line \(tokenizer.cursor)", type: .error)
+        } catch CPUError.invalidInstruction(let instruction) {
+            writeToLog("[InvalidInstruction] Invalid instruction \"\(instruction)\".", type: .error)
             running = false
-        } catch CPUError.invalidLiteral {
-            writeToLog("[InvalidLiteral] Line \(tokenizer.cursor): Literal values may range between -4095 and 4095", type: .error)
+        } catch CPUError.invalidRegister(let register) {
+            writeToLog("[InvalidRegister] Invalid register \"\(register)\".", type: .error)
             running = false
-        } catch CPUError.readOnlyRegister {
-            writeToLog("[ReadOnlyRegister] Line \(tokenizer.cursor)", type: .error)
+        } catch CPUError.invalidLiteral(let literal) {
+            writeToLog("[InvalidLiteral] Invalid literal value \"\(literal)\". Literal values may range between -4095 and 4095.", type: .error)
             running = false
-        } catch CPUError.invalidMemoryAccess {
-            writeToLog("[InvalidMemoryAccess] Line \(tokenizer.cursor): Memory accessed outside stack bounds.", type: .error)
+        } catch CPUError.readOnlyRegister(let register) {
+            writeToLog("[ReadOnlyRegister] Register \"\(register)\" is read only.", type: .error)
             running = false
-        } catch CPUError.stackPointerMisaligned {
-            writeToLog("[StackPointerMisaligned] Line \(tokenizer.cursor): The stack pointer must be quadword aligned.", type: .error)
+        } catch CPUError.invalidMemoryAccess(let address) {
+            writeToLog("[InvalidMemoryAccess] Memory address \"\(address)\" is outside stack bounds.", type: .error)
             running = false
-        } catch CPUError.invalidLabel {
-            writeToLog("[InvalidLabel] Line \(tokenizer.cursor): The referenced label does not exist.", type: .error)
+        } catch CPUError.stackPointerMisaligned(let address) {
+            writeToLog("[StackPointerMisaligned] Stack pointer address \"\(address)\" is not quadword aligned.", type: .error)
+            running = false
+        } catch CPUError.invalidLabel(let label) {
+            writeToLog("[InvalidLabel] The referenced label \"\(label)\" does not exist.", type: .error)
             running = false
         } catch {
             writeToLog("Unknown error.", type: .error)

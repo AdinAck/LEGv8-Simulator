@@ -12,7 +12,7 @@ struct ContentView: View {
     // monaco
     let syntax = SyntaxHighlight(title: "asm", fileURL: Bundle.main.url(forResource: "asm", withExtension: "js")!)
     
-    @EnvironmentObject var interpreter: Interpreter
+    @StateObject var interpreter: Interpreter = Interpreter()
     @Binding var document: Document
     
     var body: some View {
@@ -177,6 +177,9 @@ struct ContentView: View {
                     .keyboardShortcut("j")
                     .help("Stop")
             }
+        }
+        .onChange(of: document.text) { newValue in
+            interpreter.running = false
         }
     }
 }

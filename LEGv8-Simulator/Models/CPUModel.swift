@@ -8,12 +8,13 @@
 import Foundation
 
 enum CPUError: Error {
-    case invalidRegister
-    case invalidLiteral
-    case readOnlyRegister
-    case invalidMemoryAccess
-    case stackPointerMisaligned
-    case invalidLabel
+    case invalidInstruction(_ instruction: String)
+    case invalidRegister(_ register: String)
+    case invalidLiteral(_ literal: String)
+    case readOnlyRegister(_ register: String)
+    case invalidMemoryAccess(_ address: Int64)
+    case stackPointerMisaligned(_ address: Int64)
+    case invalidLabel(_ label: String)
 }
 
 struct Memory: Identifiable, Comparable {
@@ -86,24 +87,25 @@ class CPUModel: ObservableObject {
     init() { }
     
     private func isValidRegister(_ register: String, _ write: Bool = false) throws {
-        guard registers.keys.contains(register) else { throw CPUError.invalidRegister }
+        guard registers.keys.contains(register) else { throw CPUError.invalidRegister(register) }
         
         if write {
-            guard register != "xzr" else { throw CPUError.readOnlyRegister }
+            guard register != "xzr" else { throw CPUError.readOnlyRegister(register) }
         }
 
     }
     
-    private func isValidLiteral(_ immediate: Int64) throws {
-        guard -0xfff <= immediate && immediate <= 0xfff else { throw CPUError.invalidLiteral }
+    private func isValidLiteral(_ literal: Int64) throws {
+        guard -0xfff <= literal && literal <= 0xfff else { throw CPUError.invalidLiteral(String(literal)) }
     }
     
-    private func isValidMemoryAddress(_ location: Int64) throws {
-        guard location >= registers["sp"]! else { throw CPUError.invalidMemoryAccess }
+    private func isValidMemoryAddress(_ address: Int64) throws {
+        guard address >= registers["sp"]! else { throw CPUError.invalidMemoryAccess(address) }
     }
     
     private func isStackPointerAligned() throws {
-        guard registers["sp"]! % 16 == 0 else { throw CPUError.stackPointerMisaligned }
+        let address = registers["sp"]!
+        guard address % 16 == 0 else { throw CPUError.stackPointerMisaligned(address) }
     }
     
     func updateStackPointer() {
@@ -188,10 +190,10 @@ class CPUModel: ObservableObject {
         try isValidRegister(destination, true)
         try isValidLiteral(value)
         if alignment != "lsl" {
-            throw CPUError.invalidRegister
+            throw CPUError.invalidInstruction(alignment)
         }
         if ![0, 16, 32, 48].contains(shift) {
-            throw CPUError.invalidLiteral
+            throw CPUError.invalidLiteral(String(shift))
         }
         
         registers[destination]! = value << shift

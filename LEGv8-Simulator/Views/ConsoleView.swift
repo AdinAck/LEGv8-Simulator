@@ -5,6 +5,7 @@
 //  Created by Adin Ackerman on 9/26/22.
 //
 
+import Foundation
 import SwiftUI
 
 struct ConsoleView: View {
@@ -22,7 +23,15 @@ struct ConsoleView: View {
                     }
                 }
                 .onChange(of: interpreter.log) { newValue in
-                    scrollView.scrollTo(interpreter.log[interpreter.log.endIndex - 1].id)
+                    // this is a disgusting workaround to prevent the scrollview from lagging behind due to animation
+                    DispatchQueue.global().async {
+                        for _ in 0..<10 {
+                            withAnimation { // try and hide jumpiness
+                                scrollView.scrollTo(interpreter.log[interpreter.log.endIndex - 1].id)
+                            }
+                            Thread.sleep(forTimeInterval: 0.1)
+                        }
+                    }
                 }
             }
         }

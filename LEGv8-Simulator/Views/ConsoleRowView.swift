@@ -12,17 +12,20 @@ struct ConsoleRowView: View {
     let color: Color
     
     var body: some View {
-        let prefix = String(format: "%04d", entry.line)
+        let id = String(format: "%04d", entry.id)
+        let line = String(format: "%04d", entry.line)
         
         HStack {
             if entry.message != "" {
-                Text("\(prefix): ")
+                Text("\(id) | \(line): ")
                     .font(.custom("Menlo Regular", size: 12))
+                    .textSelection(.enabled)
             }
             
             Text(entry.message)
                 .font(.custom("Menlo Regular", size: 12))
                 .foregroundColor(color)
+                .textSelection(.enabled)
         }
     }
 }

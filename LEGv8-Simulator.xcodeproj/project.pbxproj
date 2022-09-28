@@ -17,8 +17,10 @@
 		404364A828E0D6F00052F25D /* asm.js in Resources */ = {isa = PBXBuildFile; fileRef = 404364A728E0D6F00052F25D /* asm.js */; };
 		404364AA28E0DD620052F25D /* CPUModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 404364A928E0DD620052F25D /* CPUModel.swift */; };
 		404364B028E0DDE70052F25D /* Tokenizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 404364AF28E0DDE70052F25D /* Tokenizer.swift */; };
+		4080D12228E3FD9D00DCA947 /* Document.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4080D12128E3FD9D00DCA947 /* Document.swift */; };
+		4080D12528E4002200DCA947 /* SwiftyMonaco in Frameworks */ = {isa = PBXBuildFile; productRef = 4080D12428E4002200DCA947 /* SwiftyMonaco */; };
+		4080D12728E4081200DCA947 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4080D12628E4081200DCA947 /* SettingsView.swift */; };
 		40FC5AF628E27F6000532886 /* SwiftyMonaco in Frameworks */ = {isa = PBXBuildFile; productRef = 40FC5AF528E27F6000532886 /* SwiftyMonaco */; };
-		40FC5AF828E28A2400532886 /* FileIO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40FC5AF728E28A2400532886 /* FileIO.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -34,8 +36,8 @@
 		404364A728E0D6F00052F25D /* asm.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = asm.js; sourceTree = "<group>"; };
 		404364A928E0DD620052F25D /* CPUModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CPUModel.swift; sourceTree = "<group>"; };
 		404364AF28E0DDE70052F25D /* Tokenizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tokenizer.swift; sourceTree = "<group>"; };
-		40FC5AF328E27F3400532886 /* SwiftyMonaco */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = SwiftyMonaco; path = ../SwiftyMonaco; sourceTree = "<group>"; };
-		40FC5AF728E28A2400532886 /* FileIO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileIO.swift; sourceTree = "<group>"; };
+		4080D12128E3FD9D00DCA947 /* Document.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Document.swift; sourceTree = "<group>"; };
+		4080D12628E4081200DCA947 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		40FC5AF928E28CCA00532886 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -45,6 +47,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				40FC5AF628E27F6000532886 /* SwiftyMonaco in Frameworks */,
+				4080D12528E4002200DCA947 /* SwiftyMonaco in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -54,7 +57,6 @@
 		4043648728E0C4020052F25D = {
 			isa = PBXGroup;
 			children = (
-				409A8B9128E27E550052363E /* Packages */,
 				4043649228E0C4020052F25D /* LEGv8-Simulator */,
 				4043649128E0C4020052F25D /* Products */,
 				40FC5AF428E27F6000532886 /* Frameworks */,
@@ -97,6 +99,7 @@
 			isa = PBXGroup;
 			children = (
 				404364A928E0DD620052F25D /* CPUModel.swift */,
+				4080D12128E3FD9D00DCA947 /* Document.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -107,6 +110,7 @@
 				4043649528E0C4020052F25D /* ContentView.swift */,
 				403D871928E1EF38002E5E4A /* ConsoleView.swift */,
 				403D871B28E214BD002E5E4A /* ConsoleRowView.swift */,
+				4080D12628E4081200DCA947 /* SettingsView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -116,17 +120,8 @@
 			children = (
 				404364AF28E0DDE70052F25D /* Tokenizer.swift */,
 				403D871728E125AE002E5E4A /* Interpreter.swift */,
-				40FC5AF728E28A2400532886 /* FileIO.swift */,
 			);
 			path = Utils;
-			sourceTree = "<group>";
-		};
-		409A8B9128E27E550052363E /* Packages */ = {
-			isa = PBXGroup;
-			children = (
-				40FC5AF328E27F3400532886 /* SwiftyMonaco */,
-			);
-			name = Packages;
 			sourceTree = "<group>";
 		};
 		40FC5AF428E27F6000532886 /* Frameworks */ = {
@@ -154,6 +149,7 @@
 			name = "LEGv8-Simulator";
 			packageProductDependencies = (
 				40FC5AF528E27F6000532886 /* SwiftyMonaco */,
+				4080D12428E4002200DCA947 /* SwiftyMonaco */,
 			);
 			productName = "LEGv8-Simulator";
 			productReference = 4043649028E0C4020052F25D /* LEGv8-Simulator.app */;
@@ -184,6 +180,7 @@
 			);
 			mainGroup = 4043648728E0C4020052F25D;
 			packageReferences = (
+				4080D12328E4002200DCA947 /* XCRemoteSwiftPackageReference "SwiftyMonaco" */,
 			);
 			productRefGroup = 4043649128E0C4020052F25D /* Products */;
 			projectDirPath = "";
@@ -212,14 +209,15 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4080D12228E3FD9D00DCA947 /* Document.swift in Sources */,
 				403D871C28E214BD002E5E4A /* ConsoleRowView.swift in Sources */,
 				4043649628E0C4020052F25D /* ContentView.swift in Sources */,
+				4080D12728E4081200DCA947 /* SettingsView.swift in Sources */,
 				404364B028E0DDE70052F25D /* Tokenizer.swift in Sources */,
 				404364AA28E0DD620052F25D /* CPUModel.swift in Sources */,
 				4043649428E0C4020052F25D /* LEGv8_SimulatorApp.swift in Sources */,
 				403D871A28E1EF38002E5E4A /* ConsoleView.swift in Sources */,
 				403D871828E125AE002E5E4A /* Interpreter.swift in Sources */,
-				40FC5AF828E28A2400532886 /* FileIO.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -418,7 +416,23 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCRemoteSwiftPackageReference section */
+		4080D12328E4002200DCA947 /* XCRemoteSwiftPackageReference "SwiftyMonaco" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ICToolkit/SwiftyMonaco";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
+		4080D12428E4002200DCA947 /* SwiftyMonaco */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4080D12328E4002200DCA947 /* XCRemoteSwiftPackageReference "SwiftyMonaco" */;
+			productName = SwiftyMonaco;
+		};
 		40FC5AF528E27F6000532886 /* SwiftyMonaco */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = SwiftyMonaco;

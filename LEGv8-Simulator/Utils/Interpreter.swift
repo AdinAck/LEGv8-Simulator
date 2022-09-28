@@ -67,6 +67,46 @@ class Interpreter: ObservableObject {
         tokenizer.cursor = labelMap[label]!
     }
     
+    func b_eq() throws {
+        
+    }
+    
+    func b_ne() throws {
+        
+    }
+    
+    func b_hs() throws {
+        
+    }
+    
+    func b_lo() throws {
+        
+    }
+    
+    func b_hi() throws {
+        
+    }
+    
+    func b_ls() throws {
+        
+    }
+    
+    func b_ge() throws {
+        
+    }
+    
+    func b_lt() throws {
+        
+    }
+    
+    func b_gt() throws {
+        
+    }
+    
+    func b_le() throws {
+        
+    }
+    
     func step() {
         if programCounter > 1000 {
             writeToLog("[InstructionLimitExceeded] The maximum execution count has been exceeded, this could be due to infinite recursion. You can change this limit in Preferences.", type: .error)

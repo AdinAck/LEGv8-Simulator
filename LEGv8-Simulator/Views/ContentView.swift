@@ -10,16 +10,15 @@ import SwiftyMonaco
 
 struct ContentView: View {
     // monaco
-    @State var reloadFlag: Bool = false
     let syntax = SyntaxHighlight(title: "asm", fileURL: Bundle.main.url(forResource: "asm", withExtension: "js")!)
     
     @EnvironmentObject var interpreter: Interpreter
-    @EnvironmentObject var fileio: FileIO
+    @Binding var document: Document
     
     var body: some View {
         HSplitView {
             VSplitView {
-                SwiftyMonaco(text: $fileio.text, reloadFlag: $reloadFlag)
+                SwiftyMonaco(text: $document.text)
                     .syntaxHighlight(syntax)
                     .smoothCursor(true)
                     .cursorBlink(.smooth)
@@ -65,6 +64,7 @@ struct ContentView: View {
                                 
                                 Text("0x\(String(format: "%llX", value))")
                                     .font(.custom("Menlo Regular", size: 12))
+                                    .textSelection(.enabled)
                                     .help("\(value)")
                             }
                         }
@@ -86,6 +86,7 @@ struct ContentView: View {
                                 
                                 Text("0x\(String(format: "%llX", value))")
                                     .font(.custom("Menlo Regular", size: 12))
+                                    .textSelection(.enabled)
                                     .help("\(value)")
                             }
                         }
@@ -127,6 +128,7 @@ struct ContentView: View {
                             
                             Text("0x\(String(format: "%llX", memory.value))")
                                 .font(.custom("Menlo Regular", size: 12))
+                                .textSelection(.enabled)
                                 .help("\(memory.value)")
                         }
                     }
@@ -134,37 +136,34 @@ struct ContentView: View {
             }
         }
         .toolbar {
-            ToolbarItem {
-                Button {
-                    fileio.openFile()
-                    reloadFlag = true
-                } label: {
-                    Image(systemName: "folder.badge.plus")
-                }
-            }
-            
             ToolbarItemGroup {
                     Button {
-                        if !interpreter.running {
-                            interpreter.start(fileio.text)
-                            interpreter.running = true
+                        withAnimation {
+                            if !interpreter.running {
+                                interpreter.start(document.text)
+                                interpreter.running = true
+                            }
+                            interpreter.step()
                         }
-                        interpreter.step()
                     } label: {
                         Image(systemName: "forward.end.fill")
                     }
+                    .keyboardShortcut("n")
                     .help("Step")
                 
                     Button {
-                        interpreter.start(fileio.text)
-                        interpreter.running = true
-                        
-                        while interpreter.running {
-                            interpreter.step()
+                        withAnimation {
+                            interpreter.start(document.text)
+                            interpreter.running = true
+                            
+                            while interpreter.running {
+                                interpreter.step()
+                            }
                         }
                     } label: {
                         Image(systemName: "play.fill")
                     }
+                    .keyboardShortcut("r")
                     .help("Run/Continue")
                 
                     Button {

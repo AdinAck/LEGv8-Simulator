@@ -44,7 +44,9 @@ struct RegisterView: View {
                     HStack {
                         Text(name)
                             .font(.custom("Menlo Regular", size: 12))
+                        
                         Spacer()
+                        
                         HStack {
                             if interpreter.lastTouchedRegister == name {
                                 Image(systemName: "circle.fill")

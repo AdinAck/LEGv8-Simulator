@@ -30,14 +30,26 @@ struct AboutView: View {
                 Text("Version: \(version)")
                 
                 Spacer()
+                
+                // disclaimer
+                HStack {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .foregroundColor(.yellow)
+                    Text("This software is community made and may have errors. Use at your own risk.")
+                        .font(.caption2)
+                    .foregroundColor(.secondary)
+                }
+                
+                Spacer()
+                
                 // license
                 Text("AdinAck/LEGv8-Simulator is licensed under the GNU General Public License v3.0")
-                    .font(.caption2)
+                    .font(.caption)
                     .foregroundColor(.secondary)
             }
             .padding()
         }
-        .frame(width: 600, height: 200)
+        .frame(width: 600, height: 300)
     }
 }
 

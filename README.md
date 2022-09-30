@@ -3,6 +3,8 @@ A SwiftUI application for writing, executing, and debugging LEGv8 assembly code 
 
 ![](screenshot.png)
 
+:warning: This software is community made and may have errors. Use at your own risk.
+
 # Usage
 ## Editing text
 The top left panel is the Monaco Text Editor from VSCode, it supports all the standard shortcuts and QoL features (even the command pallette).
@@ -50,6 +52,7 @@ Below the text editor, there is a "console" displaying a history of instructions
 - None
 
 ## Shared
+- It is possible the lexer may mistakenly accept incorrectly formatted instruction arguments as comma separators are treated the same as whitespace.
 - branching to a label in the future that has not been run before results in an error
 
 # Contributions

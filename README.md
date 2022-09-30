@@ -24,7 +24,7 @@ Below the text editor, there is a "console" displaying a history of instructions
 - Display assembler errors before execution
 - Line by line execution in monaco editor (hard)
 
-# Known bugs 🐞
+# Known issues 🐞
 ## iOS
 - Monaco Javascript error on start for no reason, has to do with `detectTheme` somehow.
 - Plus button in file explorer errors, but "Create document" button works fine...
@@ -33,6 +33,9 @@ Below the text editor, there is a "console" displaying a history of instructions
 
 ## macOS
 - None
+
+## Shared
+- branching to a label in the future that has not been run before results in an error
 
 # Contributions
 If you would like to contribute to the project, please contact me (see my [profile README](https://github.com/AdinAck)).

@@ -30,141 +30,18 @@ struct ContentView: View {
                     .syntaxHighlight(syntax)
                     .smoothCursor(true)
                     .cursorBlink(.smooth)
+                    .layoutPriority(1)
                 
                 ConsoleView()
                     .environmentObject(interpreter)
             }
             
-            VStack {
-                Text("Registers")
-                    .font(.title)
-                
-//                HStack {
-//                    ForEach(0..<4, id: \.self) { flag in
-//                        HStack {
-//                            Text(flag == 0 ? "N" : flag == 1 ? "Z" : flag == 2 ? "C" : "V")
-//                                .font(.custom("Menlo Regular", size: 12))
-//                            Spacer()
-//                            HStack {
-//                                if interpreter.lastTouchedFlags.contains(flag) {
-//                                    Image(systemName: "circle.fill")
-//                                        .font(.system(size: 8))
-//                                        .foregroundColor(.blue)
-//                                }
-//                                
-//                                let value = interpreter.cpu.flags[0]
-//                                
-//                                Text(value ? "1" : "0")
-//                                    .font(.custom("Menlo Regular", size: 12))
-//                                    .textSelection(.enabled)
-//                            }
-//                        }
-//                        .padding()
-//                    }
-//                }
-                
-                HStack {
-                    let registers: [String] = interpreter.cpu.registers.keys.sorted(by: { lhs, rhs in
-                        if lhs == "xzr" {
-                            return false
-                        } else if rhs == "xzr" {
-                            return true
-                        } else if lhs.contains("x") && rhs.contains("x") {
-                            return Int(lhs[lhs.index(after: lhs.startIndex)...])! < Int(rhs[rhs.index(after: rhs.startIndex)...])!
-                        } else if lhs.contains("x") {
-                            return true
-                        } else if rhs.contains("x") {
-                            return false
-                        } else {
-                            let order = ["sp": 0, "fp": 1, "lr": 2]
-                            return order[lhs]! < order[rhs]!
-                        }
-                    } )
-                    List(registers[..<16], id: \.self) { name in
-                        HStack {
-                            Text(name)
-                                .font(.custom("Menlo Regular", size: 12))
-                            Spacer()
-                            HStack {
-                                if interpreter.lastTouchedRegister == name {
-                                    Image(systemName: "circle.fill")
-                                        .font(.system(size: 8))
-                                        .foregroundColor(.blue)
-                                }
+            _vsplitview {
+                RegisterView()
+                    .environmentObject(interpreter)
                                 
-                                let value = interpreter.cpu.registers[name]!
-                                
-                                Text("0x\(String(format: "%llX", value))")
-                                    .font(.custom("Menlo Regular", size: 12))
-                                    .textSelection(.enabled)
-                                    .help("\(value)")
-                            }
-                        }
-                    }
-                    
-                    List(registers[16...], id: \.self) { name in
-                        HStack {
-                            Text(name)
-                                .font(.custom("Menlo Regular", size: 12))
-                            Spacer()
-                            HStack {
-                                if interpreter.lastTouchedRegister == name {
-                                    Image(systemName: "circle.fill")
-                                        .font(.system(size: 8))
-                                        .foregroundColor(.blue)
-                                }
-                                
-                                let value = interpreter.cpu.registers[name]!
-                                
-                                Text("0x\(String(format: "%llX", value))")
-                                    .font(.custom("Menlo Regular", size: 12))
-                                    .textSelection(.enabled)
-                                    .help("\(value)")
-                            }
-                        }
-                    }
-                }
-                
-                Divider()
-                
-                Text("Memory")
-                    .font(.title)
-                
-                Table(interpreter.cpu.memory.values.sorted()) {
-                    TableColumn("Address") { memory in
-                        HStack {
-                            if interpreter.cpu.registers["sp"]! == memory.id {
-                                Image(systemName: "circle.fill")
-                                    .font(.system(size: 8))
-                                    .foregroundColor(.green)
-
-                            }
-                            
-                            Text("0x\(String(format: "%llX", memory.id))")
-                                .font(.custom("Menlo Regular", size: 12))
-                        }
-                    }
-                    
-                    TableColumn("Distance from SP") { memory in
-                        Text("\(memory.id - interpreter.cpu.registers["sp"]!)")
-                            .font(.custom("Menlo Regular", size: 12))
-                    }
-                    
-                    TableColumn("Value") { memory in
-                        HStack {
-                            if interpreter.lastTouchedMemory == memory.id {
-                                Image(systemName: "circle.fill")
-                                    .font(.system(size: 8))
-                                    .foregroundColor(.blue)
-                            }
-                            
-                            Text("0x\(String(format: "%llX", memory.value))")
-                                .font(.custom("Menlo Regular", size: 12))
-                                .textSelection(.enabled)
-                                .help("\(memory.value)")
-                        }
-                    }
-                }
+                MemoryView()
+                    .environmentObject(interpreter)
             }
         }
         .toolbar {

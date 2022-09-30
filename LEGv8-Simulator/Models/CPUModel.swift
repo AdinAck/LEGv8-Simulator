@@ -12,15 +12,15 @@ enum CPUError: Error {
     case invalidRegister(_ register: String)
     case invalidLiteral(_ literal: String)
     case readOnlyRegister(_ register: String)
-    case invalidMemoryAccess(_ address: Int64)
-    case stackPointerMisaligned(_ address: Int64)
+    case invalidMemoryAccess(_ address: UInt64)
+    case stackPointerMisaligned(_ address: UInt64)
     case invalidLabel(_ label: String)
     case wrongNumberOfArguments(_ given: Int, _ expected: [Int])
 }
 
 struct Memory: Identifiable, Comparable {
-    let id: Int64
-    var value: Int64
+    let id: UInt64
+    var value: UInt64
     
     static func < (lhs: Memory, rhs: Memory) -> Bool {
         return lhs.id < rhs.id
@@ -41,7 +41,7 @@ class CPUModel: ObservableObject {
      lr (x30):  link register (return address)
      xzr:       the constant value 0
      */
-    @Published var registers: [String: Int64] = [
+    @Published var registers: [String: UInt64] = [
         "x0": 0,
         "x1": 0,
         "x2": 0,
@@ -82,8 +82,10 @@ class CPUModel: ObservableObject {
      C: Carry    - result had carryout from MSB
      V: Overflow - result overflowed
      */
-    var flags: [Bool] = [false, false, false, false]
-    var memory: [Int64: Memory] = [:]
+    @Published var flags: [Bool] = [false, false, false, false]
+    @Published var memory: [UInt64: Memory] = [:]
+    
+    @Published var touchedFlags: Bool = false
     
     init() { }
     
@@ -96,11 +98,11 @@ class CPUModel: ObservableObject {
 
     }
     
-    private func isValidLiteral(_ literal: Int64) throws {
+    private func isValidLiteral(_ literal: UInt64) throws {
         guard 0 <= literal && literal <= 0xfff else { throw CPUError.invalidLiteral(String(literal)) }
     }
     
-    private func isValidMemoryAddress(_ address: Int64) throws {
+    private func isValidMemoryAddress(_ address: UInt64) throws {
         guard address >= registers["sp"]! else { throw CPUError.invalidMemoryAccess(address) }
     }
     
@@ -125,14 +127,18 @@ class CPUModel: ObservableObject {
         try isValidRegister(operand1)
         try isValidRegister(operand2)
         
+        touchedFlags = false
+        
         registers[destination] = registers[operand1]! + registers[operand2]!
     }
     
-    func addi(_ destination: String, _ operand1: String, _ operand2: Int64) throws {
+    func addi(_ destination: String, _ operand1: String, _ operand2: UInt64) throws {
         // verify valid registers and immediate
         try isValidRegister(destination, true)
         try isValidRegister(operand1)
         try isValidLiteral(operand2)
+        
+        touchedFlags = false
         
         registers[destination] = registers[operand1]! + operand2
     }
@@ -143,29 +149,72 @@ class CPUModel: ObservableObject {
         try isValidRegister(operand1)
         try isValidRegister(operand2)
         
+        touchedFlags = true
+        
+        // flags
+        var (n, z, c, v) = (false, false, false, false)
+        
         // arithmetic
         let a = registers[operand1]!
         let b = registers[operand2]!
         
-        let c = a >> 1 + b >> 1
+        let s = (a >> 1) + (b >> 1)
         
-        if c > (1 << 31) { // unsigned overflow
-            registers[destination] = c << 1 + (a % 2) ^ (b % 2)
+        if s > (1 << 31) { // unsigned overflow
+            registers[destination] = s << 1 + (a % 2) ^ (b % 2)
             // set c flag
+            c = true
         } else {
             registers[destination] = a + b
         }
         
         // set z and n flags
+        if registers[destination]! == 0 {
+            z = true
+        }
+        
+        if registers[destination]! >> 63 == 1 {
+            n = true
+        }
+        
+        flags = [n, z, c, v]
     }
     
-    func subi(_ destination: String, _ operand1: String, _ operand2: Int64) throws {
+    func addis(_ destination: String, _ operand1: String, _ operand2: UInt64) throws {
         // verify valid registers and immediate
         try isValidRegister(destination, true)
         try isValidRegister(operand1)
         try isValidLiteral(operand2)
         
-        registers[destination] = registers[operand1]! - operand2
+        touchedFlags = true
+        
+        // flags
+        var (n, z, c, v) = (false, false, false, false)
+        
+        // arithmetic
+        let a = registers[operand1]!
+        let b = operand2
+        
+        let s = (a >> 1) + (b >> 1)
+        
+        if s > (1 << 31) { // unsigned overflow
+            registers[destination] = s << 1 + (a % 2) ^ (b % 2)
+            // set c flag
+            c = true
+        } else {
+            registers[destination] = a + b
+        }
+        
+        // set z and n flags
+        if registers[destination]! == 0 {
+            z = true
+        }
+        
+        if registers[destination]! >> 63 == 1 {
+            n = true
+        }
+        
+        flags = [n, z, c, v]
     }
     
     func sub(_ destination: String, _ operand1: String, _ operand2: String) throws {
@@ -174,11 +223,102 @@ class CPUModel: ObservableObject {
         try isValidRegister(operand1)
         try isValidRegister(operand2)
         
+        touchedFlags = false
+        
         registers[destination] = registers[operand1]! - registers[operand2]!
     }
     
+    func subi(_ destination: String, _ operand1: String, _ operand2: UInt64) throws {
+        // verify valid registers and immediate
+        try isValidRegister(destination, true)
+        try isValidRegister(operand1)
+        try isValidLiteral(operand2)
+        
+        touchedFlags = false
+        
+        // arithmetic
+        let a = registers[operand1]!
+        let b = operand2
+        
+        if b > a { // unsigned underflow
+            registers[destination] = 1 << 63 + ( 1 << 63 - 1) - (b - a - 1)
+        } else {
+            registers[destination] = a - b
+        }
+    }
+    
+    func subs(_ destination: String, _ operand1: String, _ operand2: String) throws {
+        // verify valid registers
+        try isValidRegister(destination, true)
+        try isValidRegister(operand1)
+        try isValidRegister(operand2)
+        
+        touchedFlags = true
+        
+        // flags
+        var (n, z, c, v) = (false, false, false, false)
+        
+        // arithmetic
+        let a = registers[operand1]!
+        let b = registers[operand2]!
+        
+        if b > a { // unsigned underflow
+            registers[destination] = 1 << 63 + ( 1 << 63 - 1) - (b - a - 1)
+            // for some reason do not set c flag
+//            c = true
+        } else {
+            registers[destination] = a - b
+        }
+        
+        // set z and n flags
+        if registers[destination]! == 0 {
+            z = true
+        }
+        
+        if registers[destination]! >> 63 == 1 {
+            n = true
+        }
+        
+        flags = [n, z, c, v]
+    }
+    
+    func subis(_ destination: String, _ operand1: String, _ operand2: UInt64) throws {
+        // verify valid registers and immediate
+        try isValidRegister(destination, true)
+        try isValidRegister(operand1)
+        try isValidLiteral(operand2)
+        
+        touchedFlags = true
+        
+        // flags
+        var (n, z, c, v) = (false, false, false, false)
+        
+        // arithmetic
+        let a = registers[operand1]!
+        let b = operand2
+        
+        if b > a { // unsigned underflow
+            registers[destination] = 1 << 63 + ( 1 << 63 - 1) - (b - a - 1)
+            // for some reason do not set c flag
+//            c = true
+        } else {
+            registers[destination] = a - b
+        }
+        
+        // set z and n flags
+        if registers[destination]! == 0 {
+            z = true
+        }
+        
+        if registers[destination]! >> 63 == 1 {
+            n = true
+        }
+        
+        flags = [n, z, c, v]
+    }
+    
     // data transfer
-    func ldur(_ destination: String, _ location: String, _ offset: Int64) throws {
+    func ldur(_ destination: String, _ location: String, _ offset: UInt64) throws {
         let _location = registers[location]! + offset
         
         // verify valid registers and memory address
@@ -188,10 +328,12 @@ class CPUModel: ObservableObject {
         try isValidLiteral(offset)
         try isValidMemoryAddress(_location)
         
+        touchedFlags = false
+        
         registers[destination] = memory[_location]?.value ?? 0
     }
     
-    func stur(_ source: String, _ location: String, _ offset: Int64) throws {
+    func stur(_ source: String, _ location: String, _ offset: UInt64) throws {
         let _location = registers[location]! + offset
         
         // verify valid registers and memory address
@@ -201,15 +343,20 @@ class CPUModel: ObservableObject {
         try isValidLiteral(offset)
         try isValidMemoryAddress(_location)
         
+        touchedFlags = false
+        
         memory[_location] = Memory(id: _location, value: registers[source]!)
     }
     
     // TODO: many more to implement here
     
-    func movz(_ destination: String, _ value: Int64, _ alignment: String, _ shift: Int64) throws {
+    func movz(_ destination: String, _ value: UInt64, _ alignment: String, _ shift: UInt64) throws {
         // verify valid registers and immediate
         try isValidRegister(destination, true)
         try isValidLiteral(value)
+        
+        touchedFlags = false
+        
         if alignment != "lsl" {
             throw CPUError.invalidInstruction(alignment)
         }
@@ -225,6 +372,8 @@ class CPUModel: ObservableObject {
         try isValidRegister(destination, true)
         try isValidRegister(source)
         
+        touchedFlags = false
+        
         registers[destination]! = registers[source]!
     }
     
@@ -235,14 +384,18 @@ class CPUModel: ObservableObject {
         try isValidRegister(operand1)
         try isValidRegister(operand2)
         
+        touchedFlags = false
+        
         registers[destination] = registers[operand1]! & registers[operand2]!
     }
     
-    func andi(_ destination: String, _ operand1: String, _ operand2: Int64) throws {
+    func andi(_ destination: String, _ operand1: String, _ operand2: UInt64) throws {
         // verify valid registers
         try isValidRegister(destination, true)
         try isValidRegister(operand1)
         try isValidLiteral(operand2)
+        
+        touchedFlags = false
         
         registers[destination] = registers[operand1]! & operand2
     }
@@ -253,14 +406,18 @@ class CPUModel: ObservableObject {
         try isValidRegister(operand1)
         try isValidRegister(operand2)
         
+        touchedFlags = false
+        
         registers[destination] = registers[operand1]! | registers[operand2]!
     }
     
-    func orri(_ destination: String, _ operand1: String, _ operand2: Int64) throws {
+    func orri(_ destination: String, _ operand1: String, _ operand2: UInt64) throws {
         // verify valid registers
         try isValidRegister(destination, true)
         try isValidRegister(operand1)
         try isValidLiteral(operand2)
+        
+        touchedFlags = false
         
         registers[destination] = registers[operand1]! | operand2
     }
@@ -271,32 +428,40 @@ class CPUModel: ObservableObject {
         try isValidRegister(operand1)
         try isValidRegister(operand2)
         
+        touchedFlags = false
+        
         registers[destination] = registers[operand1]! ^ registers[operand2]!
     }
     
-    func eori(_ destination: String, _ operand1: String, _ operand2: Int64) throws {
+    func eori(_ destination: String, _ operand1: String, _ operand2: UInt64) throws {
         // verify valid registers
         try isValidRegister(destination, true)
         try isValidRegister(operand1)
         try isValidLiteral(operand2)
+        
+        touchedFlags = false
         
         registers[destination] = registers[operand1]! ^ operand2
     }
     
-    func lsl(_ destination: String, _ operand1: String, _ operand2: Int64) throws {
+    func lsl(_ destination: String, _ operand1: String, _ operand2: UInt64) throws {
         // verify valid registers
         try isValidRegister(destination, true)
         try isValidRegister(operand1)
         try isValidLiteral(operand2)
         
+        touchedFlags = false
+        
         registers[destination] = registers[operand1]! << operand2
     }
     
-    func lsr(_ destination: String, _ operand1: String, _ operand2: Int64) throws {
+    func lsr(_ destination: String, _ operand1: String, _ operand2: UInt64) throws {
         // verify valid registers
         try isValidRegister(destination, true)
         try isValidRegister(operand1)
         try isValidLiteral(operand2)
+        
+        touchedFlags = false
         
         registers[destination] = registers[operand1]! >> operand2
     }

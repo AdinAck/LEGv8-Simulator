@@ -129,7 +129,17 @@ class CPUModel: ObservableObject {
         
         touchedFlags = false
         
-        registers[destination] = registers[operand1]! + registers[operand2]!
+        // arithmetic
+        let a = registers[operand1]!
+        let b = registers[operand2]!
+        
+        let s = (a >> 1) + (b >> 1)
+        
+        if s > (1 << 31) { // unsigned overflow
+            registers[destination] = s << 1 + (a % 2) ^ (b % 2)
+        } else {
+            registers[destination] = a + b
+        }
     }
     
     func addi(_ destination: String, _ operand1: String, _ operand2: UInt64) throws {
@@ -140,7 +150,17 @@ class CPUModel: ObservableObject {
         
         touchedFlags = false
         
-        registers[destination] = registers[operand1]! + operand2
+        // arithmetic
+        let a = registers[operand1]!
+        let b = operand2
+        
+        let s = (a >> 1) + (b >> 1)
+        
+        if s > (1 << 31) { // unsigned overflow
+            registers[destination] = s << 1 + (a % 2) ^ (b % 2)
+        } else {
+            registers[destination] = a + b
+        }
     }
     
     func adds(_ destination: String, _ operand1: String, _ operand2: String) throws {
@@ -158,26 +178,34 @@ class CPUModel: ObservableObject {
         let a = registers[operand1]!
         let b = registers[operand2]!
         
+        var result: UInt64 = 0
+        
         let s = (a >> 1) + (b >> 1)
         
         if s > (1 << 31) { // unsigned overflow
-            registers[destination] = s << 1 + (a % 2) ^ (b % 2)
+            result = s << 1 + (a % 2) ^ (b % 2)
             // set c flag
             c = true
         } else {
-            registers[destination] = a + b
+            result = a + b
         }
         
-        // set z and n flags
-        if registers[destination]! == 0 {
+        // set z and n, and v flags
+        if registers[destination]! >> 63 == 0 && result >> 63 == 1 { // signed underflow
+            v = true
+        }
+        
+        if result == 0 {
             z = true
         }
         
-        if registers[destination]! >> 63 == 1 {
+        if result >> 63 == 1 {
             n = true
         }
         
         flags = [n, z, c, v]
+        
+        registers[destination] = result
     }
     
     func addis(_ destination: String, _ operand1: String, _ operand2: UInt64) throws {
@@ -195,26 +223,34 @@ class CPUModel: ObservableObject {
         let a = registers[operand1]!
         let b = operand2
         
+        var result: UInt64 = 0
+        
         let s = (a >> 1) + (b >> 1)
         
         if s > (1 << 31) { // unsigned overflow
-            registers[destination] = s << 1 + (a % 2) ^ (b % 2)
+            result = s << 1 + (a % 2) ^ (b % 2)
             // set c flag
             c = true
         } else {
-            registers[destination] = a + b
+            result = a + b
         }
         
-        // set z and n flags
-        if registers[destination]! == 0 {
+        // set z and n, and v flags
+        if registers[destination]! >> 63 == 0 && result >> 63 == 1 { // signed underflow
+            v = true
+        }
+        
+        if result == 0 {
             z = true
         }
         
-        if registers[destination]! >> 63 == 1 {
+        if result >> 63 == 1 {
             n = true
         }
         
         flags = [n, z, c, v]
+        
+        registers[destination] = result
     }
     
     func sub(_ destination: String, _ operand1: String, _ operand2: String) throws {
@@ -225,7 +261,15 @@ class CPUModel: ObservableObject {
         
         touchedFlags = false
         
-        registers[destination] = registers[operand1]! - registers[operand2]!
+        // arithmetic
+        let a = registers[operand1]!
+        let b = registers[operand2]!
+        
+        if b > a { // unsigned underflow
+            registers[destination] = 1 << 63 + ( 1 << 63 - 1) - (b - a - 1)
+        } else {
+            registers[destination] = a - b
+        }
     }
     
     func subi(_ destination: String, _ operand1: String, _ operand2: UInt64) throws {
@@ -262,24 +306,33 @@ class CPUModel: ObservableObject {
         let a = registers[operand1]!
         let b = registers[operand2]!
         
+        var result: UInt64 = 0
+        
         if b > a { // unsigned underflow
-            registers[destination] = 1 << 63 + ( 1 << 63 - 1) - (b - a - 1)
+            result = 1 << 63 + ( 1 << 63 - 1) - (b - a - 1)
             // for some reason do not set c flag
 //            c = true
         } else {
-            registers[destination] = a - b
+            result = a - b
         }
         
-        // set z and n flags
-        if registers[destination]! == 0 {
+        
+        // set z and n, and v flags
+        if registers[destination]! >> 63 == 1 && result >> 63 == 0 { // signed underflow
+            v = true
+        }
+        
+        if result == 0 {
             z = true
         }
         
-        if registers[destination]! >> 63 == 1 {
+        if result >> 63 == 1 {
             n = true
         }
         
         flags = [n, z, c, v]
+        
+        registers[destination] = result
     }
     
     func subis(_ destination: String, _ operand1: String, _ operand2: UInt64) throws {
@@ -297,24 +350,32 @@ class CPUModel: ObservableObject {
         let a = registers[operand1]!
         let b = operand2
         
+        var result: UInt64 = 0
+        
         if b > a { // unsigned underflow
-            registers[destination] = 1 << 63 + ( 1 << 63 - 1) - (b - a - 1)
+            result = 1 << 63 + ( 1 << 63 - 1) - (b - a - 1)
             // for some reason do not set c flag
 //            c = true
         } else {
-            registers[destination] = a - b
+            result = a - b
         }
         
-        // set z and n flags
-        if registers[destination]! == 0 {
+        // set z and n, and v flags
+        if registers[destination]! >> 63 == 1 && result >> 63 == 0 { // signed underflow
+            v = true
+        }
+        
+        if result == 0 {
             z = true
         }
         
-        if registers[destination]! >> 63 == 1 {
+        if result >> 63 == 1 {
             n = true
         }
         
         flags = [n, z, c, v]
+        
+        registers[destination] = result
     }
     
     // data transfer

@@ -293,56 +293,67 @@ class Interpreter: ObservableObject {
                 try b(arguments[0])
                 lastTouchedRegister = nil
                 lastTouchedMemory = nil
+                cpu.touchedFlags = false
             case "b.eq":
                 try verifyArgumentCount(arguments.count, [1])
                 try b_eq(arguments[0])
                 lastTouchedRegister = nil
                 lastTouchedMemory = nil
+                cpu.touchedFlags = false
             case "b.ne":
                 try verifyArgumentCount(arguments.count, [1])
                 try b_ne(arguments[0])
                 lastTouchedRegister = nil
                 lastTouchedMemory = nil
+                cpu.touchedFlags = false
             case "b.hs":
                 try verifyArgumentCount(arguments.count, [1])
                 try b_hs(arguments[0])
                 lastTouchedRegister = nil
                 lastTouchedMemory = nil
+                cpu.touchedFlags = false
             case "b.lo":
                 try verifyArgumentCount(arguments.count, [1])
                 try b_lo(arguments[0])
                 lastTouchedRegister = nil
                 lastTouchedMemory = nil
+                cpu.touchedFlags = false
             case "b.hi":
                 try verifyArgumentCount(arguments.count, [1])
                 try b_hi(arguments[0])
                 lastTouchedRegister = nil
                 lastTouchedMemory = nil
+                cpu.touchedFlags = false
             case "b.ls":
                 try verifyArgumentCount(arguments.count, [1])
                 try b_ls(arguments[0])
                 lastTouchedRegister = nil
                 lastTouchedMemory = nil
+                cpu.touchedFlags = false
             case "b.ge":
                 try verifyArgumentCount(arguments.count, [1])
                 try b_ge(arguments[0])
                 lastTouchedRegister = nil
                 lastTouchedMemory = nil
+                cpu.touchedFlags = false
             case "b.lt":
                 try verifyArgumentCount(arguments.count, [1])
                 try b_lt(arguments[0])
                 lastTouchedRegister = nil
                 lastTouchedMemory = nil
+                cpu.touchedFlags = false
             case "b.gt":
                 try verifyArgumentCount(arguments.count, [1])
                 try b_gt(arguments[0])
                 lastTouchedRegister = nil
                 lastTouchedMemory = nil
+                cpu.touchedFlags = false
             case "b.le":
                 try verifyArgumentCount(arguments.count, [1])
                 try b_le(arguments[0])
                 lastTouchedRegister = nil
                 lastTouchedMemory = nil
+                cpu.touchedFlags = false
             case "_label":
                 labelMap[arguments[0]] = lexer.cursor - 1
                 step()

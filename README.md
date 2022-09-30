@@ -16,13 +16,28 @@ There are three buttons in the top right:
 Below the text editor, there is a "console" displaying a history of instructions executed, the current line of execution, the program counter and line number values for each instruction, and errors if the occur.
 
 # TODO
-- Flags (NZCV)
-- Conditional branching
 - Customizable execution limit
 - Optimize lexer and improve verbosity
 - Differentiate *Assembler* and *Runtime* errors
 - Display assembler errors before execution
+- Register future labels before execution
 - Line by line execution in monaco editor (hard)
+
+## Unimplemented instructions
+- LDURSW
+- STURW
+- LDURH
+- STURH
+- LDURB
+- STURB
+- LDXR
+- STXR
+- MOVZ
+- MOVK
+- CBZ
+- CBNZ
+- BR
+- BL
 
 # Known issues 🐞
 ## iOS

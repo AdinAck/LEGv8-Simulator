@@ -15,8 +15,10 @@ struct LEGv8_SimulatorApp: App {
             ContentView(document: file.$document)
         }
         
+        #if os(macOS)
         Settings {
             SettingsView()
         }
+        #endif
     }
 }

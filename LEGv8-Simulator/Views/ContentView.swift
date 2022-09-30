@@ -8,6 +8,14 @@
 import SwiftUI
 import SwiftyMonaco
 
+#if os(macOS)
+typealias _hsplitview = HSplitView
+typealias _vsplitview = VSplitView
+#else
+typealias _hsplitview = HStack
+typealias _vsplitview = VStack
+#endif
+
 struct ContentView: View {
     // monaco
     let syntax = SyntaxHighlight(title: "asm", fileURL: Bundle.main.url(forResource: "asm", withExtension: "js")!)
@@ -16,8 +24,8 @@ struct ContentView: View {
     @Binding var document: Document
     
     var body: some View {
-        HSplitView {
-            VSplitView {
+        _hsplitview {
+            _vsplitview {
                 SwiftyMonaco(text: $document.text)
                     .syntaxHighlight(syntax)
                     .smoothCursor(true)
@@ -30,6 +38,30 @@ struct ContentView: View {
             VStack {
                 Text("Registers")
                     .font(.title)
+                
+//                HStack {
+//                    ForEach(0..<4, id: \.self) { flag in
+//                        HStack {
+//                            Text(flag == 0 ? "N" : flag == 1 ? "Z" : flag == 2 ? "C" : "V")
+//                                .font(.custom("Menlo Regular", size: 12))
+//                            Spacer()
+//                            HStack {
+//                                if interpreter.lastTouchedFlags.contains(flag) {
+//                                    Image(systemName: "circle.fill")
+//                                        .font(.system(size: 8))
+//                                        .foregroundColor(.blue)
+//                                }
+//                                
+//                                let value = interpreter.cpu.flags[0]
+//                                
+//                                Text(value ? "1" : "0")
+//                                    .font(.custom("Menlo Regular", size: 12))
+//                                    .textSelection(.enabled)
+//                            }
+//                        }
+//                        .padding()
+//                    }
+//                }
                 
                 HStack {
                     let registers: [String] = interpreter.cpu.registers.keys.sorted(by: { lhs, rhs in

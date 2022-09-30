@@ -15,6 +15,7 @@ enum CPUError: Error {
     case invalidMemoryAccess(_ address: Int64)
     case stackPointerMisaligned(_ address: Int64)
     case invalidLabel(_ label: String)
+    case wrongNumberOfArguments(_ given: Int, _ expected: [Int])
 }
 
 struct Memory: Identifiable, Comparable {
@@ -96,7 +97,7 @@ class CPUModel: ObservableObject {
     }
     
     private func isValidLiteral(_ literal: Int64) throws {
-        guard -0xfff <= literal && literal <= 0xfff else { throw CPUError.invalidLiteral(String(literal)) }
+        guard 0 <= literal && literal <= 0xfff else { throw CPUError.invalidLiteral(String(literal)) }
     }
     
     private func isValidMemoryAddress(_ address: Int64) throws {
@@ -127,15 +128,6 @@ class CPUModel: ObservableObject {
         registers[destination] = registers[operand1]! + registers[operand2]!
     }
     
-    func sub(_ destination: String, _ operand1: String, _ operand2: String) throws {
-        // verify valid registers
-        try isValidRegister(destination, true)
-        try isValidRegister(operand1)
-        try isValidRegister(operand2)
-        
-        registers[destination] = registers[operand1]! - registers[operand2]!
-    }
-    
     func addi(_ destination: String, _ operand1: String, _ operand2: Int64) throws {
         // verify valid registers and immediate
         try isValidRegister(destination, true)
@@ -143,6 +135,28 @@ class CPUModel: ObservableObject {
         try isValidLiteral(operand2)
         
         registers[destination] = registers[operand1]! + operand2
+    }
+    
+    func adds(_ destination: String, _ operand1: String, _ operand2: String) throws {
+        // verify valid registers
+        try isValidRegister(destination, true)
+        try isValidRegister(operand1)
+        try isValidRegister(operand2)
+        
+        // arithmetic
+        let a = registers[operand1]!
+        let b = registers[operand2]!
+        
+        let c = a >> 1 + b >> 1
+        
+        if c > (1 << 31) { // unsigned overflow
+            registers[destination] = c << 1 + (a % 2) ^ (b % 2)
+            // set c flag
+        } else {
+            registers[destination] = a + b
+        }
+        
+        // set z and n flags
     }
     
     func subi(_ destination: String, _ operand1: String, _ operand2: Int64) throws {
@@ -154,7 +168,14 @@ class CPUModel: ObservableObject {
         registers[destination] = registers[operand1]! - operand2
     }
     
-    // TODO: flags
+    func sub(_ destination: String, _ operand1: String, _ operand2: String) throws {
+        // verify valid registers
+        try isValidRegister(destination, true)
+        try isValidRegister(operand1)
+        try isValidRegister(operand2)
+        
+        registers[destination] = registers[operand1]! - registers[operand2]!
+    }
     
     // data transfer
     func ldur(_ destination: String, _ location: String, _ offset: Int64) throws {

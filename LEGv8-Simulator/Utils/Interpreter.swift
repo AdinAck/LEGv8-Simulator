@@ -19,7 +19,7 @@ struct LogEntry: Identifiable, Equatable {
 }
 
 class Interpreter: ObservableObject {
-    @Published var tokenizer: Tokenizer!
+    @Published var lexer: Lexer!
     @Published var cpu: CPUModel = CPUModel()
     
     @Published var running: Bool = false
@@ -27,13 +27,14 @@ class Interpreter: ObservableObject {
     
     @Published var lastTouchedRegister: String?
     @Published var lastTouchedMemory: Int64?
+    @Published var lastTouchedFlags: [Int] = []
     
     @Published var log: [LogEntry] = []
     
     var labelMap: [String: Int] = [:]
     
     func start(_ text: String) {
-        self.tokenizer = Tokenizer(text: text)
+        self.lexer = Lexer(text: text)
         self.cpu = CPUModel()
         cpu.updateStackPointer()
         
@@ -57,7 +58,7 @@ class Interpreter: ObservableObject {
     
     private func writeToLog(_ message: String, type: LineType = .normal) {
         print(message)
-        log.append(LogEntry(id: programCounter, line: tokenizer.cursor, message: message, type: type))
+        log.append(LogEntry(id: programCounter, line: lexer.cursor, message: message, type: type))
         programCounter += 1
         objectWillChange.send()
     }
@@ -66,11 +67,15 @@ class Interpreter: ObservableObject {
         guard labelMap.keys.contains(label) else { throw CPUError.invalidLabel(label) }
     }
     
+    private func verifyArgumentCount(_ given: Int, _ expected: [Int]) throws {
+        guard expected.contains(given) else { throw CPUError.wrongNumberOfArguments(given, expected)}
+    }
+    
     func b(_ label: String) throws {
         // verify label exists
         try isValidLabel(label)
         
-        tokenizer.cursor = labelMap[label]!
+        lexer.cursor = labelMap[label]!
     }
     
     func b_eq() throws {
@@ -120,35 +125,40 @@ class Interpreter: ObservableObject {
             return
         }
         
-        let (instruction, arguments) = tokenizer.parseNextLine()
+        let (instruction, arguments) = lexer.parseNextLine()
         
         if instruction == "_end" {
             writeToLog("")
         } else if instruction == "_label" {
-            writeToLog(tokenizer.lines[tokenizer.cursor - 1], type: .label)
+            writeToLog(lexer.lines[lexer.cursor - 1], type: .label)
         } else {
-            writeToLog(tokenizer.lines[tokenizer.cursor - 1])
+            writeToLog(lexer.lines[lexer.cursor - 1])
         }
         
         do {
             switch instruction {
             case "add":
+                try verifyArgumentCount(arguments.count, [3])
                 try cpu.add(arguments[0], arguments[1], arguments[2])
                 lastTouchedRegister = arguments[0]
                 lastTouchedMemory = nil
             case "sub":
-                try cpu.sub(arguments[0], arguments[1], arguments[3])
+                try verifyArgumentCount(arguments.count, [3])
+                try cpu.sub(arguments[0], arguments[1], arguments[2])
                 lastTouchedRegister = arguments[0]
                 lastTouchedMemory = nil
             case "addi":
+                try verifyArgumentCount(arguments.count, [3])
                 try cpu.addi(arguments[0], arguments[1], literalToInt64(arguments[2]))
                 lastTouchedRegister = arguments[0]
                 lastTouchedMemory = nil
             case "subi":
+                try verifyArgumentCount(arguments.count, [3])
                 try cpu.subi(arguments[0], arguments[1], literalToInt64(arguments[2]))
                 lastTouchedRegister = arguments[0]
                 lastTouchedMemory = nil
             case "ldur":
+                try verifyArgumentCount(arguments.count, [2, 3])
                 var offset: Int64 = 0
                 if arguments.count > 2 {
                     offset = Int64(arguments[2])!
@@ -158,6 +168,7 @@ class Interpreter: ObservableObject {
                 lastTouchedRegister = arguments[0]
                 lastTouchedMemory = nil
             case "stur":
+                try verifyArgumentCount(arguments.count, [2, 3])
                 var offset: Int64 = 0
                 if arguments.count > 2 {
                     if let _offset = Int64(arguments[2]) {
@@ -169,47 +180,56 @@ class Interpreter: ObservableObject {
                 lastTouchedRegister = nil
                 lastTouchedMemory = cpu.registers[arguments[1]]! + offset
             case "movz":
+                try verifyArgumentCount(arguments.count, [4])
                 try cpu.movz(arguments[0], Int64(arguments[1])!, arguments[2], Int64(arguments[3])!)
                 lastTouchedRegister = arguments[0]
                 lastTouchedMemory = nil
             case "mov":
+                try verifyArgumentCount(arguments.count, [2])
                 try cpu.mov(arguments[0], arguments[1])
                 lastTouchedRegister = arguments[0]
                 lastTouchedMemory = nil
             case "and":
+                try verifyArgumentCount(arguments.count, [3])
                 try cpu.and(arguments[0], arguments[1], arguments[2])
                 lastTouchedRegister = arguments[0]
                 lastTouchedMemory = nil
             case "andi":
+                try verifyArgumentCount(arguments.count, [3])
                 try cpu.andi(arguments[0], arguments[1], literalToInt64(arguments[2]))
                 lastTouchedRegister = arguments[0]
                 lastTouchedMemory = nil
             case "orr":
+                try verifyArgumentCount(arguments.count, [3])
                 try cpu.orr(arguments[0], arguments[1], arguments[2])
                 lastTouchedRegister = arguments[0]
                 lastTouchedMemory = nil
             case "orri":
+                try verifyArgumentCount(arguments.count, [3])
                 try cpu.orri(arguments[0], arguments[1], literalToInt64(arguments[2]))
                 lastTouchedRegister = arguments[0]
                 lastTouchedMemory = nil
             case "eor":
+                try verifyArgumentCount(arguments.count, [3])
                 try cpu.eor(arguments[0], arguments[1], arguments[2])
                 lastTouchedRegister = arguments[0]
                 lastTouchedMemory = nil
             case "eori":
+                try verifyArgumentCount(arguments.count, [3])
                 try cpu.eori(arguments[0], arguments[1], literalToInt64(arguments[2]))
                 lastTouchedRegister = arguments[0]
                 lastTouchedMemory = nil
             case "b":
+                try verifyArgumentCount(arguments.count, [1])
                 try b(arguments[0])
                 lastTouchedRegister = nil
                 lastTouchedMemory = nil
             case "_label":
-                labelMap[arguments[0]] = tokenizer.cursor - 1
+                labelMap[arguments[0]] = lexer.cursor - 1
                 step()
             case "_end":
                 running = false
-                tokenizer.cursor = 0
+                lexer.cursor = 0
             default:
                 writeToLog("[UnknownInstruction] Unkown instruction \"\(instruction)\".", type: .error)
                 running = false
@@ -221,7 +241,7 @@ class Interpreter: ObservableObject {
             writeToLog("[InvalidRegister] Invalid register \"\(register)\".", type: .error)
             running = false
         } catch CPUError.invalidLiteral(let literal) {
-            writeToLog("[InvalidLiteral] Invalid literal value \"\(literal)\". Literal values may range between -4095 and 4095.", type: .error)
+            writeToLog("[InvalidLiteral] Invalid literal value \"\(literal)\". Literal values may range between 0 and 4095.", type: .error)
             running = false
         } catch CPUError.readOnlyRegister(let register) {
             writeToLog("[ReadOnlyRegister] Register \"\(register)\" is read only.", type: .error)
@@ -234,6 +254,9 @@ class Interpreter: ObservableObject {
             running = false
         } catch CPUError.invalidLabel(let label) {
             writeToLog("[InvalidLabel] The referenced label \"\(label)\" does not exist.", type: .error)
+            running = false
+        } catch CPUError.wrongNumberOfArguments(let given, let expected) {
+            writeToLog("[WrongNumberOfArguments] Was given \(given) arguments but expected \(expected).", type: .error)
             running = false
         } catch {
             writeToLog("Unknown error.", type: .error)

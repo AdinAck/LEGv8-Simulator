@@ -7,7 +7,7 @@
 
 import Foundation
 
-class Tokenizer: ObservableObject {
+class Lexer: ObservableObject {
     var lines: [String]
     @Published var cursor: Int = 0
     

@@ -11,27 +11,33 @@ struct AboutView: View {
     let version: String = "1.0"
     
     var body: some View {
-        VStack(alignment: .leading) {
-            Text("Legv8 Simulator")
-                .font(.title)
-            Text("Created by Adin Ackerman")
-                .font(.caption)
+        HStack {
+            Image("LEGv8-Simulator-Icon")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
             
-            Divider()
-            
-            Text("A SwiftUI application for writing, executing, and debugging LEGv8 assembly code with a series of visual tools.")
-                .padding(.bottom)
-            
-            Text("Version: \(version)")
-            
-            Spacer()
-            // license
-            Text("AdinAck/LEGv8-Simulator is licensed under the GNU General Public License v3.0")
-                .font(.caption2)
-                .foregroundColor(.secondary)
+            VStack(alignment: .leading) {
+                Text("Legv8 Simulator")
+                    .font(.title)
+                Text("Created by Adin Ackerman")
+                    .font(.caption)
+                
+                Divider()
+                
+                Text("A SwiftUI application for writing, executing, and debugging LEGv8 assembly code with a series of visual tools.")
+                    .padding(.bottom)
+                
+                Text("Version: \(version)")
+                
+                Spacer()
+                // license
+                Text("AdinAck/LEGv8-Simulator is licensed under the GNU General Public License v3.0")
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+            }
+            .padding()
         }
-        .padding()
-        .frame(width: 400, height: 200)
+        .frame(width: 600, height: 200)
     }
 }
 

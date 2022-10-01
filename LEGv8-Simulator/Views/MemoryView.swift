@@ -20,6 +20,8 @@ struct MemoryView: View {
                 Spacer()
             }
             
+            // table seems to improperly receive propagated animations
+            // manually invoking .animation resolves it
             Table(interpreter.cpu.memory.values.sorted()) {
                 TableColumn("Address") { memory in
                     HStack {
@@ -33,11 +35,14 @@ struct MemoryView: View {
                         Text("0x\(String(format: "%llX", memory.id))")
                             .font(.custom("Menlo Regular", size: 12))
                     }
+                    .animation(.default, value: interpreter.cpu.registers)
+                    .animation(.default, value: interpreter.cpu.memory)
                 }
                 
                 TableColumn("Distance from SP") { memory in
                     Text("\(Int64(memory.id) - Int64(interpreter.cpu.registers["sp"]!))")
                         .font(.custom("Menlo Regular", size: 12))
+                        .animation(.default, value: interpreter.cpu.registers)
                 }
                 
                 TableColumn("Value") { memory in
@@ -53,6 +58,8 @@ struct MemoryView: View {
                             .textSelection(.enabled)
                             .help("\(memory.value)")
                     }
+                    .animation(.default, value: interpreter.lastTouchedMemory)
+                    .animation(.default, value: interpreter.cpu.memory)
                 }
             }
         }

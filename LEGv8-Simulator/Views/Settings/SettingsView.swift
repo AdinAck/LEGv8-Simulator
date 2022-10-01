@@ -11,7 +11,7 @@ struct SettingsView: View {
     @State var execLimit: String = "1000"
     
     var body: some View {
-        TabView {
+        TabView() {
             List {
                 HStack {
                     Text("Execution limit:")

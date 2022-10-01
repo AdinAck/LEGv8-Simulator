@@ -8,14 +8,10 @@
 import Foundation
 
 enum CPUError: Error {
-    case invalidInstruction(_ instruction: String)
-    case invalidRegister(_ register: String)
     case invalidLiteral(_ literal: String)
     case readOnlyRegister(_ register: String)
     case invalidMemoryAccess(_ address: UInt64)
     case stackPointerMisaligned(_ address: UInt64)
-    case invalidLabel(_ label: String)
-    case wrongNumberOfArguments(_ given: Int, _ expected: [Int])
 }
 
 struct Memory: Identifiable, Comparable {
@@ -90,8 +86,6 @@ class CPUModel: ObservableObject {
     init() { }
     
     private func isValidRegister(_ register: String, _ write: Bool = false) throws {
-        guard registers.keys.contains(register) else { throw CPUError.invalidRegister(register) }
-        
         if write {
             guard register != "xzr" else { throw CPUError.readOnlyRegister(register) }
         }
@@ -418,9 +412,9 @@ class CPUModel: ObservableObject {
         
         touchedFlags = false
         
-        if alignment != "lsl" {
-            throw CPUError.invalidInstruction(alignment)
-        }
+//        if alignment != "lsl" {
+//            throw CPUError.invalidInstruction(alignment)
+//        }
         if ![0, 16, 32, 48].contains(shift) {
             throw CPUError.invalidLiteral(String(shift))
         }

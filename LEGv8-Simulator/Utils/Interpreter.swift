@@ -18,11 +18,25 @@ struct LogEntry: Identifiable, Equatable {
     let type: LineType
 }
 
+enum RunMode {
+    case assembling, running, labelling
+}
+
+enum AssemblerError: Error {
+    case invalidInstruction(_ instruction: String)
+    case invalidRegister(_ register: String)
+    case invalidLiteral(_ literal: String)
+    case invalidLabel(_ label: String)
+    case wrongNumberOfArguments(_ given: Int, _ expected: [Int])
+}
+
 class Interpreter: ObservableObject {
     @Published var lexer: Lexer!
     @Published var cpu: CPUModel = CPUModel()
     
     @Published var running: Bool = false
+    @Published var assembled: Bool = false
+    @Published var error: Bool = false
     @Published var programCounter: Int = 0
     
     @Published var lastTouchedRegister: String?
@@ -32,42 +46,79 @@ class Interpreter: ObservableObject {
     
     var labelMap: [String: Int] = [:]
     
+    func buildLabelMap(_ text: String) {
+        start(text)
+        
+        while running {
+            step(mode: .labelling)
+        }
+    }
+    
+    func assemble(_ text: String) {
+        buildLabelMap(text)
+        start(text)
+        
+        error = false
+        while running {
+            step(mode: .assembling)
+        }
+        
+        cpu = CPUModel()
+        
+        if !error {
+            assembled = true
+        }
+    }
+    
     func start(_ text: String) {
-        self.lexer = Lexer(text: text)
-        self.cpu = CPUModel()
+        lexer = Lexer(text: text)
+        cpu = CPUModel()
         cpu.updateStackPointer()
         
         programCounter = 0
         log = []
+        
+        running = true
     }
     
-    private func literalToUInt64(_ literal: String) throws -> UInt64 {
-        if literal.contains("x") {
-            if let result = UInt64(String(literal[literal.index(after: literal.firstIndex(of: "x")!)...]), radix: 16) {
-                return result
+    private func parseLiteral(_ raw: String) throws -> UInt64 {
+        if raw.contains("x") {
+            if let literal = UInt64(String(raw[raw.index(after: raw.firstIndex(of: "x")!)...]), radix: 16) {
+                return literal
             }
         } else {
-            if let result = UInt64(literal) {
-                return result
+            if let literal = UInt64(raw) {
+                return literal
             }
         }
         
-        throw CPUError.invalidLiteral(literal)
+        throw AssemblerError.invalidLiteral(raw)
     }
     
     private func writeToLog(_ message: String, type: LineType = .normal) {
         print(message)
         log.append(LogEntry(id: programCounter, line: lexer.cursor, message: message, type: type))
         programCounter += 1
+        
+        if type == .error {
+            error = true
+        }
+        
         objectWillChange.send()
     }
     
     private func isValidLabel(_ label: String) throws {
-        guard labelMap.keys.contains(label) else { throw CPUError.invalidLabel(label) }
+        guard labelMap.keys.contains(label) else { throw AssemblerError.invalidLabel(label) }
     }
     
     private func verifyArgumentCount(_ given: Int, _ expected: [Int]) throws {
-        guard expected.contains(given) else { throw CPUError.wrongNumberOfArguments(given, expected)}
+        guard expected.contains(given) else { throw AssemblerError.wrongNumberOfArguments(given, expected)}
+    }
+    
+    private func doStop(mode: RunMode) {
+        if mode == .running {
+            running = false
+        }
     }
     
     func b(_ label: String) throws {
@@ -167,7 +218,7 @@ class Interpreter: ObservableObject {
         }
     }
     
-    func step() {
+    func step(mode: RunMode) {
         if programCounter > 1000 {
             writeToLog("[InstructionLimitExceeded] The maximum execution count has been exceeded, this could be due to infinite recursion. You can change this limit in Preferences.", type: .error)
             running = false
@@ -179,218 +230,195 @@ class Interpreter: ObservableObject {
         if instruction == "_end" {
             writeToLog("")
         } else if instruction == "_label" {
-            writeToLog(lexer.lines[lexer.cursor - 1], type: .label)
+            if mode == .running {
+                writeToLog(lexer.lines[lexer.cursor - 1], type: .label)
+            } else if mode == .labelling {
+                labelMap[arguments[0]] = lexer.cursor - 1
+            }
         } else {
-            writeToLog(lexer.lines[lexer.cursor - 1])
+            if mode == .running {
+                writeToLog(lexer.lines[lexer.cursor - 1])
+            }
         }
         
-        do {
-            switch instruction {
-            case "add":
-                try verifyArgumentCount(arguments.count, [3])
-                try cpu.add(arguments[0], arguments[1], arguments[2])
-                lastTouchedRegister = arguments[0]
-                lastTouchedMemory = nil
-            case "addi":
-                try verifyArgumentCount(arguments.count, [3])
-                try cpu.addi(arguments[0], arguments[1], literalToUInt64(arguments[2]))
-                lastTouchedRegister = arguments[0]
-                lastTouchedMemory = nil
-            case "adds":
-                try verifyArgumentCount(arguments.count, [3])
-                try cpu.adds(arguments[0], arguments[1], arguments[2])
-                lastTouchedRegister = arguments[0]
-                lastTouchedMemory = nil
-            case "addis":
-                try verifyArgumentCount(arguments.count, [3])
-                try cpu.addis(arguments[0], arguments[1], literalToUInt64(arguments[2]))
-                lastTouchedRegister = arguments[0]
-                lastTouchedMemory = nil
-            case "sub":
-                try verifyArgumentCount(arguments.count, [3])
-                try cpu.sub(arguments[0], arguments[1], arguments[2])
-                lastTouchedRegister = arguments[0]
-                lastTouchedMemory = nil
-            case "subi":
-                try verifyArgumentCount(arguments.count, [3])
-                try cpu.subi(arguments[0], arguments[1], literalToUInt64(arguments[2]))
-                lastTouchedRegister = arguments[0]
-                lastTouchedMemory = nil
-            case "subs":
-                try verifyArgumentCount(arguments.count, [3])
-                try cpu.subs(arguments[0], arguments[1], arguments[2])
-                lastTouchedRegister = arguments[0]
-                lastTouchedMemory = nil
-            case "subis":
-                try verifyArgumentCount(arguments.count, [3])
-                try cpu.subis(arguments[0], arguments[1], literalToUInt64(arguments[2]))
-                lastTouchedRegister = arguments[0]
-                lastTouchedMemory = nil
-            case "ldur":
-                try verifyArgumentCount(arguments.count, [2, 3])
-                var offset: UInt64 = 0
-                if arguments.count > 2 {
-                    offset = UInt64(arguments[2])!
-                }
-                
-                try cpu.ldur(arguments[0], arguments[1], offset)
-                lastTouchedRegister = arguments[0]
-                lastTouchedMemory = nil
-            case "stur":
-                try verifyArgumentCount(arguments.count, [2, 3])
-                var offset: UInt64 = 0
-                if arguments.count > 2 {
-                    if let _offset = UInt64(arguments[2]) {
-                        offset = _offset
+        
+        lastTouchedRegister = nil
+        lastTouchedMemory = nil
+        cpu.touchedFlags = false
+        
+        if mode == .assembling {
+            // assembly
+            do {
+                switch instruction {
+                case "add", "adds", "sub", "subs":
+                    try verifyArgumentCount(arguments.count, [3])
+                case "addi", "addis", "subi", "subis":
+                    try verifyArgumentCount(arguments.count, [3])
+                    let _ = try parseLiteral(arguments[2])
+                case "ldur", "stur":
+                    try verifyArgumentCount(arguments.count, [2, 3])
+                    if arguments.count > 2 {
+                        let _ = try parseLiteral(arguments[2])
                     }
+                case "movz":
+                    try verifyArgumentCount(arguments.count, [4])
+                    let _ = try parseLiteral(arguments[1])
+                    let _ = try parseLiteral(arguments[3])
+                case "mov":
+                    try verifyArgumentCount(arguments.count, [2])
+                case "and", "orr", "eor":
+                    try verifyArgumentCount(arguments.count, [3])
+                case "andi", "orri", "eori":
+                    try verifyArgumentCount(arguments.count, [3])
+                    let _ = try parseLiteral(arguments[2])
+                case "b", "b.eq", "b.ne", "b.hs", "b.lo", "b.hi", "b.ls", "b.ge", "b.lt", "b.gt", "b.le":
+                    if labelMap.keys.contains(arguments[0]) {
+                        try verifyArgumentCount(arguments.count, [1])
+                    } else {
+                        throw AssemblerError.invalidLabel(arguments[0])
+                    }
+                case "_label":
+                    step(mode: mode)
+                case "_end":
+                    running = false
+                    lexer.cursor = 0
+                default:
+                    writeToLog("[UnknownInstruction] Unkown instruction \"\(instruction)\".", type: .error)
+                    doStop(mode: mode)
                 }
-                
-                try cpu.stur(arguments[0], arguments[1], offset)
-                lastTouchedRegister = nil
-                lastTouchedMemory = cpu.registers[arguments[1]]! + offset
-            case "movz":
-                try verifyArgumentCount(arguments.count, [4])
-                try cpu.movz(arguments[0], UInt64(arguments[1])!, arguments[2], UInt64(arguments[3])!)
-                lastTouchedRegister = arguments[0]
-                lastTouchedMemory = nil
-            case "mov":
-                try verifyArgumentCount(arguments.count, [2])
-                try cpu.mov(arguments[0], arguments[1])
-                lastTouchedRegister = arguments[0]
-                lastTouchedMemory = nil
-            case "and":
-                try verifyArgumentCount(arguments.count, [3])
-                try cpu.and(arguments[0], arguments[1], arguments[2])
-                lastTouchedRegister = arguments[0]
-                lastTouchedMemory = nil
-            case "andi":
-                try verifyArgumentCount(arguments.count, [3])
-                try cpu.andi(arguments[0], arguments[1], literalToUInt64(arguments[2]))
-                lastTouchedRegister = arguments[0]
-                lastTouchedMemory = nil
-            case "orr":
-                try verifyArgumentCount(arguments.count, [3])
-                try cpu.orr(arguments[0], arguments[1], arguments[2])
-                lastTouchedRegister = arguments[0]
-                lastTouchedMemory = nil
-            case "orri":
-                try verifyArgumentCount(arguments.count, [3])
-                try cpu.orri(arguments[0], arguments[1], literalToUInt64(arguments[2]))
-                lastTouchedRegister = arguments[0]
-                lastTouchedMemory = nil
-            case "eor":
-                try verifyArgumentCount(arguments.count, [3])
-                try cpu.eor(arguments[0], arguments[1], arguments[2])
-                lastTouchedRegister = arguments[0]
-                lastTouchedMemory = nil
-            case "eori":
-                try verifyArgumentCount(arguments.count, [3])
-                try cpu.eori(arguments[0], arguments[1], literalToUInt64(arguments[2]))
-                lastTouchedRegister = arguments[0]
-                lastTouchedMemory = nil
-            case "b":
-                try verifyArgumentCount(arguments.count, [1])
-                try b(arguments[0])
-                lastTouchedRegister = nil
-                lastTouchedMemory = nil
-                cpu.touchedFlags = false
-            case "b.eq":
-                try verifyArgumentCount(arguments.count, [1])
-                try b_eq(arguments[0])
-                lastTouchedRegister = nil
-                lastTouchedMemory = nil
-                cpu.touchedFlags = false
-            case "b.ne":
-                try verifyArgumentCount(arguments.count, [1])
-                try b_ne(arguments[0])
-                lastTouchedRegister = nil
-                lastTouchedMemory = nil
-                cpu.touchedFlags = false
-            case "b.hs":
-                try verifyArgumentCount(arguments.count, [1])
-                try b_hs(arguments[0])
-                lastTouchedRegister = nil
-                lastTouchedMemory = nil
-                cpu.touchedFlags = false
-            case "b.lo":
-                try verifyArgumentCount(arguments.count, [1])
-                try b_lo(arguments[0])
-                lastTouchedRegister = nil
-                lastTouchedMemory = nil
-                cpu.touchedFlags = false
-            case "b.hi":
-                try verifyArgumentCount(arguments.count, [1])
-                try b_hi(arguments[0])
-                lastTouchedRegister = nil
-                lastTouchedMemory = nil
-                cpu.touchedFlags = false
-            case "b.ls":
-                try verifyArgumentCount(arguments.count, [1])
-                try b_ls(arguments[0])
-                lastTouchedRegister = nil
-                lastTouchedMemory = nil
-                cpu.touchedFlags = false
-            case "b.ge":
-                try verifyArgumentCount(arguments.count, [1])
-                try b_ge(arguments[0])
-                lastTouchedRegister = nil
-                lastTouchedMemory = nil
-                cpu.touchedFlags = false
-            case "b.lt":
-                try verifyArgumentCount(arguments.count, [1])
-                try b_lt(arguments[0])
-                lastTouchedRegister = nil
-                lastTouchedMemory = nil
-                cpu.touchedFlags = false
-            case "b.gt":
-                try verifyArgumentCount(arguments.count, [1])
-                try b_gt(arguments[0])
-                lastTouchedRegister = nil
-                lastTouchedMemory = nil
-                cpu.touchedFlags = false
-            case "b.le":
-                try verifyArgumentCount(arguments.count, [1])
-                try b_le(arguments[0])
-                lastTouchedRegister = nil
-                lastTouchedMemory = nil
-                cpu.touchedFlags = false
-            case "_label":
-                labelMap[arguments[0]] = lexer.cursor - 1
-                step()
-            case "_end":
-                running = false
-                lexer.cursor = 0
-            default:
-                writeToLog("[UnknownInstruction] Unkown instruction \"\(instruction)\".", type: .error)
-                running = false
+            } catch AssemblerError.invalidInstruction(let instruction) {
+                writeToLog("[InvalidInstruction] Invalid instruction \"\(instruction)\".", type: .error)
+                doStop(mode: mode)
+            } catch AssemblerError.invalidRegister(let register) {
+                writeToLog("[InvalidRegister] Invalid register \"\(register)\".", type: .error)
+                doStop(mode: mode)
+            } catch AssemblerError.invalidLiteral(let literal) {
+                writeToLog("[InvalidLiteral] Invalid literal value \"\(literal)\". Literal values may range between 0 and 4095.", type: .error)
+                doStop(mode: mode)
+            } catch AssemblerError.invalidLabel(let label) {
+                writeToLog("[InvalidLabel] The referenced label \"\(label)\" does not exist.", type: .error)
+                doStop(mode: mode)
+            } catch AssemblerError.wrongNumberOfArguments(let given, let expected) {
+                writeToLog("[WrongNumberOfArguments] Was given \(given) arguments but expected \(expected).", type: .error)
+                doStop(mode: mode)
+            } catch {
+                writeToLog("Unknown error.", type: .error)
             }
-        } catch CPUError.invalidInstruction(let instruction) {
-            writeToLog("[InvalidInstruction] Invalid instruction \"\(instruction)\".", type: .error)
-            running = false
-        } catch CPUError.invalidRegister(let register) {
-            writeToLog("[InvalidRegister] Invalid register \"\(register)\".", type: .error)
-            running = false
-        } catch CPUError.invalidLiteral(let literal) {
-            writeToLog("[InvalidLiteral] Invalid literal value \"\(literal)\". Literal values may range between 0 and 4095.", type: .error)
-            running = false
-        } catch CPUError.readOnlyRegister(let register) {
-            writeToLog("[ReadOnlyRegister] Register \"\(register)\" is read only.", type: .error)
-            running = false
-        } catch CPUError.invalidMemoryAccess(let address) {
-            writeToLog("[InvalidMemoryAccess] Memory address \"\(address)\" is outside stack bounds.", type: .error)
-            running = false
-        } catch CPUError.stackPointerMisaligned(let address) {
-            writeToLog("[StackPointerMisaligned] Stack pointer address \"\(address)\" is not quadword aligned.", type: .error)
-            running = false
-        } catch CPUError.invalidLabel(let label) {
-            writeToLog("[InvalidLabel] The referenced label \"\(label)\" does not exist.", type: .error)
-            running = false
-        } catch CPUError.wrongNumberOfArguments(let given, let expected) {
-            writeToLog("[WrongNumberOfArguments] Was given \(given) arguments but expected \(expected).", type: .error)
-            running = false
-        } catch {
-            writeToLog("Unknown error.", type: .error)
-            running = false
+        } else if mode == .running{
+            // execution
+            do {
+                switch instruction {
+                case "add":
+                    try cpu.add(arguments[0], arguments[1], arguments[2])
+                    lastTouchedRegister = arguments[0]
+                case "addi":
+                    try cpu.addi(arguments[0], arguments[1], parseLiteral(arguments[2]))
+                    lastTouchedRegister = arguments[0]
+                case "adds":
+                    try cpu.adds(arguments[0], arguments[1], arguments[2])
+                    lastTouchedRegister = arguments[0]
+                case "addis":
+                    try cpu.addis(arguments[0], arguments[1], parseLiteral(arguments[2]))
+                    lastTouchedRegister = arguments[0]
+                case "sub":
+                    try cpu.sub(arguments[0], arguments[1], arguments[2])
+                    lastTouchedRegister = arguments[0]
+                case "subi":
+                    try cpu.subi(arguments[0], arguments[1], parseLiteral(arguments[2]))
+                    lastTouchedRegister = arguments[0]
+                case "subs":
+                    try cpu.subs(arguments[0], arguments[1], arguments[2])
+                    lastTouchedRegister = arguments[0]
+                case "subis":
+                    try cpu.subis(arguments[0], arguments[1], parseLiteral(arguments[2]))
+                    lastTouchedRegister = arguments[0]
+                case "ldur":
+                    var offset: UInt64 = 0
+                    if arguments.count > 2 {
+                        offset = try parseLiteral(arguments[2])
+                    }
+                    
+                    try cpu.ldur(arguments[0], arguments[1], offset)
+                    lastTouchedRegister = arguments[0]
+                case "stur":
+                    var offset: UInt64 = 0
+                    if arguments.count > 2 {
+                        offset = try parseLiteral(arguments[2])
+                    }
+                    
+                    try cpu.stur(arguments[0], arguments[1], offset)
+                    lastTouchedMemory = cpu.registers[arguments[1]]! + offset
+                case "movz":
+                    try cpu.movz(arguments[0], parseLiteral(arguments[1]), arguments[2], parseLiteral(arguments[3]))
+                    lastTouchedRegister = arguments[0]
+                case "mov":
+                    try cpu.mov(arguments[0], arguments[1])
+                    lastTouchedRegister = arguments[0]
+                case "and":
+                    try cpu.and(arguments[0], arguments[1], arguments[2])
+                    lastTouchedRegister = arguments[0]
+                case "andi":
+                    try cpu.andi(arguments[0], arguments[1], parseLiteral(arguments[2]))
+                    lastTouchedRegister = arguments[0]
+                case "orr":
+                    try cpu.orr(arguments[0], arguments[1], arguments[2])
+                    lastTouchedRegister = arguments[0]
+                case "orri":
+                    try cpu.orri(arguments[0], arguments[1], parseLiteral(arguments[2]))
+                    lastTouchedRegister = arguments[0]
+                case "eor":
+                    try cpu.eor(arguments[0], arguments[1], arguments[2])
+                    lastTouchedRegister = arguments[0]
+                case "eori":
+                    try cpu.eori(arguments[0], arguments[1], parseLiteral(arguments[2]))
+                    lastTouchedRegister = arguments[0]
+                case "b":
+                    try b(arguments[0])
+                case "b.eq":
+                    try b_eq(arguments[0])
+                case "b.ne":
+                    try b_ne(arguments[0])
+                case "b.hs":
+                    try b_hs(arguments[0])
+                case "b.lo":
+                    try b_lo(arguments[0])
+                case "b.hi":
+                    try b_hi(arguments[0])
+                case "b.ls":
+                    try b_ls(arguments[0])
+                case "b.ge":
+                    try b_ge(arguments[0])
+                case "b.lt":
+                    try b_lt(arguments[0])
+                case "b.gt":
+                    try b_gt(arguments[0])
+                case "b.le":
+                    try b_le(arguments[0])
+                case "_label":
+                    step(mode: mode)
+                case "_end":
+                    running = false
+                    lexer.cursor = 0
+                default:
+                    writeToLog("[UnknownInstruction] Unkown instruction \"\(instruction)\".", type: .error)
+                    doStop(mode: mode)
+                }
+            } catch CPUError.invalidLiteral(let literal) {
+                writeToLog("[InvalidLiteral] Invalid literal value \"\(literal)\". Literal values may range between 0 and 4095.", type: .error)
+                doStop(mode: mode)
+            } catch CPUError.readOnlyRegister(let register) {
+                writeToLog("[ReadOnlyRegister] Register \"\(register)\" is read only.", type: .error)
+                doStop(mode: mode)
+            } catch CPUError.invalidMemoryAccess(let address) {
+                writeToLog("[InvalidMemoryAccess] Memory address \"\(address)\" is outside stack bounds.", type: .error)
+                doStop(mode: mode)
+            } catch CPUError.stackPointerMisaligned(let address) {
+                writeToLog("[StackPointerMisaligned] Stack pointer address \"\(address)\" is not quadword aligned.", type: .error)
+                doStop(mode: mode)
+            } catch {
+                writeToLog("Unknown error.", type: .error)
+                doStop(mode: mode)
+            }
         }
         
         cpu.updateStackPointer()

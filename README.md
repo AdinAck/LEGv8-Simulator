@@ -20,9 +20,6 @@ Below the text editor, there is a "console" displaying a history of instructions
 # TODO
 - Customizable execution limit
 - Optimize lexer and improve verbosity
-- Differentiate *Assembler* and *Runtime* errors
-- Display assembler errors before execution
-- Register future labels before execution
 - Line by line execution in monaco editor (hard)
 
 ## Unimplemented instructions
@@ -53,7 +50,6 @@ Below the text editor, there is a "console" displaying a history of instructions
 
 ## Shared
 - It is possible the lexer may mistakenly accept incorrectly formatted instruction arguments as comma separators are treated the same as whitespace.
-- branching to a label in the future that has not been run before results in an error
 
 # Contributions
 If you would like to contribute to the project, please contact me (see my [profile README](https://github.com/AdinAck)).

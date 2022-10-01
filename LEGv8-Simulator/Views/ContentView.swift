@@ -46,49 +46,60 @@ struct ContentView: View {
         }
         .toolbar {
             ToolbarItemGroup {
-                    Button {
-                        withAnimation {
-                            if !interpreter.running {
-                                interpreter.start(document.text)
-                                interpreter.running = true
-                            }
-                            interpreter.step()
-                        }
-                    } label: {
-                        Image(systemName: "forward.end.fill")
+                Button {
+                    withAnimation {
+                        interpreter.assemble(document.text)
                     }
-                    .keyboardShortcut("k")
-                    .help("Step")
+                } label: {
+                    Image(systemName: "hammer.fill")
+                }
+                .keyboardShortcut("b")
+                .help("Assemble")
                 
-                    Button {
-                        withAnimation {
+                Button {
+                    withAnimation {
+                        if !interpreter.running {
                             interpreter.start(document.text)
-                            interpreter.running = true
-                            
-                            while interpreter.running {
-                                interpreter.step()
-                            }
                         }
-                    } label: {
-                        Image(systemName: "play.fill")
+                        interpreter.step(mode: .running)
                     }
-                    .keyboardShortcut("l")
-                    .help("Run/Continue")
-                
-                    Button {
-                        interpreter.running = false
-                    } label: {
-                        VStack {
-                            Image(systemName: "stop.fill")
+                } label: {
+                    Image(systemName: "forward.end.fill")
+                }
+                .disabled(!interpreter.assembled)
+                .keyboardShortcut("k")
+                .help("Step")
+            
+                Button {
+                    withAnimation {
+                        interpreter.start(document.text)
+                        
+                        while interpreter.running {
+                            interpreter.step(mode: .running)
                         }
                     }
-                    .disabled(!interpreter.running)
-                    .keyboardShortcut("j")
-                    .help("Stop")
+                } label: {
+                    Image(systemName: "play.fill")
+                }
+                .disabled(!interpreter.assembled)
+                .keyboardShortcut("l")
+                .help("Run/Continue")
+            
+                Button {
+                    interpreter.running = false
+                } label: {
+                    VStack {
+                        Image(systemName: "stop.fill")
+                    }
+                }
+                .disabled(!interpreter.running)
+                .keyboardShortcut("j")
+                .help("Stop")
             }
         }
         .onChange(of: document.text) { newValue in
             interpreter.running = false
+            interpreter.assembled = false
         }
     }
 }

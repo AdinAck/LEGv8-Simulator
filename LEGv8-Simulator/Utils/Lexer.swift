@@ -74,7 +74,7 @@ class Lexer: ObservableObject {
         cursor += 1
         objectWillChange.send()
         
-        print("[Tokenizer] Instruction: \(instruction), Operands: \(args)")
+        print("[Lexer] Instruction: \(instruction), Operands: \(args)")
         
         return (instruction, args)
     }

@@ -46,6 +46,16 @@ struct ContentView: View {
         }
         .toolbar {
             ToolbarItemGroup {
+                if interpreter.running {
+                    ProgressView()
+                        .scaleEffect(0.5)
+                } else {
+                    Text(interpreter.assembled ? "Done" : interpreter.error ? "Failed with errors" : "Ready")
+                        .font(.caption2)
+                        .padding(6)
+                        .background(RoundedRectangle(cornerRadius: 6).fill(.quaternary))
+                }
+                
                 Button {
                     withAnimation {
                         interpreter.assemble(document.text)

@@ -11,6 +11,7 @@ The top left panel is the Monaco Text Editor from VSCode, it supports all the st
 
 ## Execution
 There are three buttons in the top right:
+- Assemble - Assemble the code for execution (cmd + b)
 - Step - Execute the next instruction (cmd + k)
 - Run/Continue - Execute the rest of the instructions (cmd + l)
 - Stop - Reset everything, go back to beginning of program (cmd + j)

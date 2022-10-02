@@ -304,10 +304,10 @@ class CPUModel: ObservableObject {
         
         if b > a { // unsigned underflow
             result = 1 << 63 + ( 1 << 63 - 1) - (b - a - 1)
-            // for some reason do not set c flag
-//            c = true
         } else {
             result = a - b
+            // set c flag
+            c = true
         }
         
         
@@ -348,10 +348,10 @@ class CPUModel: ObservableObject {
         
         if b > a { // unsigned underflow
             result = 1 << 63 + ( 1 << 63 - 1) - (b - a - 1)
-            // for some reason do not set c flag
-//            c = true
         } else {
             result = a - b
+            // set c flag
+            c = true
         }
         
         // set z and n, and v flags

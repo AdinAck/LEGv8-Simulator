@@ -34,7 +34,7 @@ class Lexer: ObservableObject {
         } else if instruction.contains(":") {
             let label = String(instruction[..<instruction.firstIndex(of: ":")!])
             cursor += 1
-            print("[Tokenizer] Label: \(label)")
+            print("[Lexer] Label: \(label)")
             return ("_label", [label])
         }
         

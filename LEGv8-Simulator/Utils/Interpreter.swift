@@ -107,6 +107,10 @@ class Interpreter: ObservableObject {
         objectWillChange.send()
     }
     
+    private func isValidRegister(_ register: String) throws {
+        guard cpu.registers.keys.contains(register) else { throw AssemblerError.invalidRegister(register) }
+    }
+    
     private func isValidLabel(_ label: String) throws {
         guard labelMap.keys.contains(label) else { throw AssemblerError.invalidLabel(label) }
     }
@@ -252,24 +256,40 @@ class Interpreter: ObservableObject {
                 switch instruction {
                 case "add", "adds", "sub", "subs":
                     try verifyArgumentCount(arguments.count, [3])
+                    try isValidRegister(arguments[0])
+                    try isValidRegister(arguments[1])
+                    try isValidRegister(arguments[2])
                 case "addi", "addis", "subi", "subis":
                     try verifyArgumentCount(arguments.count, [3])
+                    try isValidRegister(arguments[0])
+                    try isValidRegister(arguments[1])
                     let _ = try parseLiteral(arguments[2])
                 case "ldur", "stur":
                     try verifyArgumentCount(arguments.count, [2, 3])
+                    try isValidRegister(arguments[0])
+                    try isValidRegister(arguments[1])
                     if arguments.count > 2 {
                         let _ = try parseLiteral(arguments[2])
                     }
                 case "movz":
                     try verifyArgumentCount(arguments.count, [4])
+                    try isValidRegister(arguments[0])
                     let _ = try parseLiteral(arguments[1])
+                    guard arguments[2] == "lsl" else { throw AssemblerError.invalidInstruction(arguments[2])}
                     let _ = try parseLiteral(arguments[3])
                 case "mov":
                     try verifyArgumentCount(arguments.count, [2])
+                    try isValidRegister(arguments[0])
+                    try isValidRegister(arguments[1])
                 case "and", "orr", "eor":
                     try verifyArgumentCount(arguments.count, [3])
+                    try isValidRegister(arguments[0])
+                    try isValidRegister(arguments[1])
+                    try isValidRegister(arguments[2])
                 case "andi", "orri", "eori":
                     try verifyArgumentCount(arguments.count, [3])
+                    try isValidRegister(arguments[0])
+                    try isValidRegister(arguments[1])
                     let _ = try parseLiteral(arguments[2])
                 case "b", "b.eq", "b.ne", "b.hs", "b.lo", "b.hi", "b.ls", "b.ge", "b.lt", "b.gt", "b.le":
                     if labelMap.keys.contains(arguments[0]) {

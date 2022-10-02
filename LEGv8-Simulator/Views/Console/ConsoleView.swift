@@ -27,8 +27,10 @@ struct ConsoleView: View {
                     DispatchQueue.global().async {
                         for _ in 0..<40 { // one second
                             // a withAnimation block here causes thread contradiction
-                            scrollView.scrollTo(interpreter.log[interpreter.log.endIndex - 1].id)
-                            Thread.sleep(forTimeInterval: 0.025)
+                            if interpreter.log.count > 0 {
+                                scrollView.scrollTo(interpreter.log[interpreter.log.endIndex - 1].id)
+                                Thread.sleep(forTimeInterval: 0.025)
+                            }
                         }
                     }
                 }

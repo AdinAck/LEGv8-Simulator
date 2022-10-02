@@ -51,6 +51,7 @@ Below the text editor, there is a "console" displaying a history of instructions
 
 ## Shared
 - It is possible the lexer may mistakenly accept incorrectly formatted instruction arguments as comma separators are treated the same as whitespace.
+- `movz` may be able to accept `lsr` as an offset instruction but I have no idea 
 
 # Contributions
 If you would like to contribute to the project, please contact me (see my [profile README](https://github.com/AdinAck)).

@@ -38,6 +38,7 @@ class Interpreter: ObservableObject {
     @Published var assembled: Bool = false
     @Published var error: Bool = false
     @Published var programCounter: Int = 0
+    var executionLimit: Int = 0
     
     @Published var lastTouchedRegister: String?
     @Published var lastTouchedMemory: UInt64?
@@ -107,6 +108,7 @@ class Interpreter: ObservableObject {
         objectWillChange.send()
     }
     
+    // linting helpers
     private func isValidRegister(_ register: String) throws {
         guard cpu.registers.keys.contains(register) else { throw AssemblerError.invalidRegister(register) }
     }
@@ -125,6 +127,7 @@ class Interpreter: ObservableObject {
         }
     }
     
+    // branching
     func b(_ label: String) throws {
         // verify label exists
         try isValidLabel(label)
@@ -223,7 +226,7 @@ class Interpreter: ObservableObject {
     }
     
     func step(mode: RunMode) {
-        if programCounter > 1000 {
+        if programCounter > executionLimit {
             writeToLog("[InstructionLimitExceeded] The maximum execution count has been exceeded, this could be due to infinite recursion. You can change this limit in Preferences.", type: .error)
             running = false
             return
@@ -281,12 +284,12 @@ class Interpreter: ObservableObject {
                     try verifyArgumentCount(arguments.count, [2])
                     try isValidRegister(arguments[0])
                     try isValidRegister(arguments[1])
-                case "and", "orr", "eor":
+                case "and", "ands", "orr", "eor":
                     try verifyArgumentCount(arguments.count, [3])
                     try isValidRegister(arguments[0])
                     try isValidRegister(arguments[1])
                     try isValidRegister(arguments[2])
-                case "andi", "orri", "eori":
+                case "andi", "andis", "orri", "eori":
                     try verifyArgumentCount(arguments.count, [3])
                     try isValidRegister(arguments[0])
                     try isValidRegister(arguments[1])
@@ -379,6 +382,12 @@ class Interpreter: ObservableObject {
                     lastTouchedRegister = arguments[0]
                 case "andi":
                     try cpu.andi(arguments[0], arguments[1], parseLiteral(arguments[2]))
+                    lastTouchedRegister = arguments[0]
+                case "ands":
+                    try cpu.ands(arguments[0], arguments[1], arguments[2])
+                    lastTouchedRegister = arguments[0]
+                case "andis":
+                    try cpu.andis(arguments[0], arguments[1], parseLiteral(arguments[2]))
                     lastTouchedRegister = arguments[0]
                 case "orr":
                     try cpu.orr(arguments[0], arguments[1], arguments[2])

@@ -17,11 +17,13 @@ typealias _vsplitview = VStack
 #endif
 
 struct ContentView: View {
-    // monaco
-    let syntax = SyntaxHighlight(title: "asm", fileURL: Bundle.main.url(forResource: "asm", withExtension: "js")!)
+    @EnvironmentObject var settings: SettingsModel
     
     @StateObject var interpreter: Interpreter = Interpreter()
     @Binding var document: Document
+    
+    // monaco
+    let syntax = SyntaxHighlight(title: "asm", fileURL: Bundle.main.url(forResource: "asm", withExtension: "js")!)
     
     var body: some View {
         _hsplitview {
@@ -110,6 +112,18 @@ struct ContentView: View {
         .onChange(of: document.text) { newValue in
             interpreter.running = false
             interpreter.assembled = false
+            
+            if settings.buildOnType {
+                withAnimation {
+                    interpreter.assemble(document.text)
+                }
+            }
+        }
+        .onChange(of: settings.executionLimit) { newValue in
+            interpreter.executionLimit = newValue
+        }
+        .onAppear {
+            interpreter.executionLimit = settings.executionLimit
         }
     }
 }

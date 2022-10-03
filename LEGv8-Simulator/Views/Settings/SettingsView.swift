@@ -8,7 +8,8 @@
 import SwiftUI
 
 struct SettingsView: View {
-    @State var execLimit: String = "1000"
+    @EnvironmentObject var model: SettingsModel
+    @State var execLimitString: String = ""
     
     var body: some View {
         TabView() {
@@ -16,14 +17,25 @@ struct SettingsView: View {
                 HStack {
                     Text("Execution limit:")
                     
-                    TextField("", text: $execLimit)
+                    TextField("", text: $execLimitString)
                         .textFieldStyle(.roundedBorder)
                         .frame(width: 100)
+                        .onChange(of: execLimitString) { newValue in
+                            if let val = Int(newValue) {
+                                model.executionLimit = val
+                            }
+                        }
                 }
+                
+                Toggle("Build on type", isOn: $model.buildOnType)
+                    .toggleStyle(.switch)
             }
             .frame(width: 400, height: 400)
             .tabItem {
                 Label("Settings", systemImage: "gear")
+            }
+            .onAppear {
+                execLimitString = String(model.executionLimit)
             }
             
             AboutView()
@@ -34,8 +46,8 @@ struct SettingsView: View {
     }
 }
 
-struct SettingsView_Previews: PreviewProvider {
-    static var previews: some View {
-        SettingsView()
-    }
-}
+//struct SettingsView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        SettingsView()
+//    }
+//}

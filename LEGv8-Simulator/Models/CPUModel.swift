@@ -455,6 +455,56 @@ class CPUModel: ObservableObject {
         registers[destination] = registers[operand1]! & operand2
     }
     
+    func ands(_ destination: String, _ operand1: String, _ operand2: String) throws {
+        // verify valid registers
+        try isValidRegister(destination, true)
+        try isValidRegister(operand1)
+        try isValidRegister(operand2)
+        
+        touchedFlags = true
+        
+        // flags
+        var (n, z, c, v) = (false, false, false, false)
+        
+        let result = registers[operand1]! & registers[operand2]!
+        
+        // check z flag
+        if result == 0 {
+            z = true
+        }
+        
+        // TODO: more flag checks may be needed
+        
+        flags = [n, z, c, v]
+        
+        registers[destination] = result
+    }
+    
+    func andis(_ destination: String, _ operand1: String, _ operand2: UInt64) throws {
+        // verify valid registers
+        try isValidRegister(destination, true)
+        try isValidRegister(operand1)
+        try isValidLiteral(operand2)
+        
+        touchedFlags = true
+        
+        // flags
+        var (n, z, c, v) = (false, false, false, false)
+        
+        let result = registers[operand1]! & operand2
+        
+        // check z flag
+        if result == 0 {
+            z = true
+        }
+        
+        // TODO: more flag checks may be needed
+        
+        flags = [n, z, c, v]
+        
+        registers[destination] = result
+    }
+    
     func orr(_ destination: String, _ operand1: String, _ operand2: String) throws {
         // verify valid registers
         try isValidRegister(destination, true)
@@ -520,9 +570,4 @@ class CPUModel: ObservableObject {
         
         registers[destination] = registers[operand1]! >> operand2
     }
-    
-    // conditional branch
-    
-    // unconditional branch
-    
 }

@@ -11,12 +11,13 @@ class Lexer: ObservableObject {
     var lines: [String]
     @Published var cursor: Int = 0
     
-    let specialCharacters: [Character] = ["\t"]
+    let specialCharacters: [Character] = ["\t", "\r"]
     
     init(text: String) {
         lines = text.components(separatedBy: "\n").map { sub in String(sub)}
     }
     
+    // TODO: lexer does not differentiate commas and whitespace
     func parseNextLine() -> (String, [String]) {
         guard cursor < lines.count else { return ("_end", []) }
         
@@ -26,6 +27,11 @@ class Lexer: ObservableObject {
         }
         
         let line: [String] = lines[cursor].map({ char in if specialCharacters.contains(char) { return " " } else { return char }}).split(separator: " ").map { sub in String(sub)}
+        
+        if line.count == 0{
+            cursor += 1
+            return parseNextLine()
+        }
         
         let instruction: String = line[0].filter({ char in !specialCharacters.contains(char)})
         if instruction.contains("/") { // line is only comment

@@ -41,57 +41,21 @@ struct RegisterView: View {
                     }
                 } )
                 List(registers[..<16], id: \.self) { name in
-                    HStack {
-                        Text(name)
-                            .font(.custom("Menlo Regular", size: 12))
-                        
-                        Spacer()
-                        
-                        HStack {
-                            if interpreter.lastTouchedRegister == name {
-                                Image(systemName: "circle.fill")
-                                    .font(.system(size: 8))
-                                    .foregroundColor(.blue)
-                            }
-                            
-                            let value = interpreter.cpu.registers[name]!
-                            
-                            Text("0x\(String(format: "%llX", value))")
-                                .font(.custom("Menlo Regular", size: 12))
-                                .textSelection(.enabled)
-                                .help("\(value)")
-                        }
-                    }
+                    RegisterRowView(name: name)
+                        .environmentObject(interpreter)
                 }
                 
                 List(registers[16...], id: \.self) { name in
-                    HStack {
-                        Text(name)
-                            .font(.custom("Menlo Regular", size: 12))
-                        Spacer()
-                        HStack {
-                            if interpreter.lastTouchedRegister == name {
-                                Image(systemName: "circle.fill")
-                                    .font(.system(size: 8))
-                                    .foregroundColor(.blue)
-                            }
-                            
-                            let value = interpreter.cpu.registers[name]!
-                            
-                            Text("0x\(String(format: "%llX", value))")
-                                .font(.custom("Menlo Regular", size: 12))
-                                .textSelection(.enabled)
-                                .help("\(value)")
-                        }
-                    }
+                    RegisterRowView(name: name)
+                        .environmentObject(interpreter)
                 }
             }
         }
     }
 }
 
-struct RegisterView_Previews: PreviewProvider {
-    static var previews: some View {
-        RegisterView()
-    }
-}
+//struct RegisterView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        RegisterView()
+//    }
+//}

@@ -5,6 +5,9 @@ A SwiftUI application for writing, executing, and debugging LEGv8 assembly code 
 
 :warning: This software is community made and may have errors. Use at your own risk.
 
+# Download
+Here you can download the [latest release](https://github.com/AdinAck/LEGv8-Simulator/releases/).
+
 # Usage
 ## Editing text
 The top left panel is the Monaco Text Editor from VSCode, it supports all the standard shortcuts and QoL features (even the command pallette).

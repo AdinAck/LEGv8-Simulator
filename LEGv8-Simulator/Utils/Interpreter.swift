@@ -41,7 +41,7 @@ class Interpreter: ObservableObject {
     var executionLimit: Int = 0
     
     @Published var lastTouchedRegister: String?
-    @Published var lastTouchedMemory: UInt64?
+    @Published var lastTouchedMemory: Int64?
     
     @Published var log: [LogEntry] = []
     
@@ -82,13 +82,13 @@ class Interpreter: ObservableObject {
         running = true
     }
     
-    private func parseLiteral(_ raw: String) throws -> UInt64 {
+    private func parseLiteral(_ raw: String) throws -> Int64 {
         if raw.contains("x") {
-            if let literal = UInt64(String(raw[raw.index(after: raw.firstIndex(of: "x")!)...]), radix: 16) {
+            if let literal = Int64(String(raw[raw.index(after: raw.firstIndex(of: "x")!)...]), radix: 16) {
                 return literal
             }
         } else {
-            if let literal = UInt64(raw) {
+            if let literal = Int64(raw) {
                 return literal
             }
         }
@@ -294,6 +294,11 @@ class Interpreter: ObservableObject {
                     try isValidRegister(arguments[0])
                     try isValidRegister(arguments[1])
                     let _ = try parseLiteral(arguments[2])
+                case "lsl", "lsr":
+                    try verifyArgumentCount(arguments.count, [3])
+                    try isValidRegister(arguments[0])
+                    try isValidRegister(arguments[1])
+                    let _ = try parseLiteral(arguments[2])
                 case "b", "b.eq", "b.ne", "b.hs", "b.lo", "b.hi", "b.ls", "b.ge", "b.lt", "b.gt", "b.le":
                     if labelMap.keys.contains(arguments[0]) {
                         try verifyArgumentCount(arguments.count, [1])
@@ -356,7 +361,7 @@ class Interpreter: ObservableObject {
                     try cpu.subis(arguments[0], arguments[1], parseLiteral(arguments[2]))
                     lastTouchedRegister = arguments[0]
                 case "ldur":
-                    var offset: UInt64 = 0
+                    var offset: Int64 = 0
                     if arguments.count > 2 {
                         offset = try parseLiteral(arguments[2])
                     }
@@ -364,7 +369,7 @@ class Interpreter: ObservableObject {
                     try cpu.ldur(arguments[0], arguments[1], offset)
                     lastTouchedRegister = arguments[0]
                 case "stur":
-                    var offset: UInt64 = 0
+                    var offset: Int64 = 0
                     if arguments.count > 2 {
                         offset = try parseLiteral(arguments[2])
                     }
@@ -401,6 +406,12 @@ class Interpreter: ObservableObject {
                 case "eori":
                     try cpu.eori(arguments[0], arguments[1], parseLiteral(arguments[2]))
                     lastTouchedRegister = arguments[0]
+                case "lsl":
+                    try cpu.lsl(arguments[0], arguments[1], parseLiteral(arguments[2]))
+                    lastTouchedRegister = arguments[0]
+                case "lsr":
+                    try cpu.lsr(arguments[0], arguments[1], parseLiteral(arguments[2]))
+                    lastTouchedRegister = arguments[0]
                 case "b":
                     try b(arguments[0])
                 case "b.eq":
@@ -432,14 +443,17 @@ class Interpreter: ObservableObject {
                     writeToLog("[UnknownInstruction] Unkown instruction \"\(instruction)\".", type: .error)
                     doStop(mode: mode)
                 }
-            } catch CPUError.invalidLiteral(let literal) {
-                writeToLog("[InvalidLiteral] Invalid literal value \"\(literal)\". Literal values may range between 0 and 4095.", type: .error)
-                doStop(mode: mode)
             } catch CPUError.readOnlyRegister(let register) {
                 writeToLog("[ReadOnlyRegister] Register \"\(register)\" is read only.", type: .error)
                 doStop(mode: mode)
+            } catch CPUError.invalidImmediate(let literal) {
+                writeToLog("[InvalidLiteral] Invalid literal value \"\(literal)\". Immediate values may range between 0 and 4095.", type: .error)
+                doStop(mode: mode)
+            } catch CPUError.invalidIndex(let literal) {
+                writeToLog("[InvalidLiteral] Invalid literal value \"\(literal)\". Index values may range between -256 and 255 inclusive.", type: .error)
+                doStop(mode: mode)
             } catch CPUError.invalidMemoryAccess(let address) {
-                writeToLog("[InvalidMemoryAccess] Memory address \"\(address)\" is outside stack bounds.", type: .error)
+                writeToLog("[InvalidMemoryAccess] Memory address \"0x\(String(format: "%11X", address))\" is outside stack bounds.", type: .error) // this displays incorrectly - known printf bug
                 doStop(mode: mode)
             } catch CPUError.stackPointerMisaligned(let address) {
                 writeToLog("[StackPointerMisaligned] Stack pointer address \"\(address)\" is not quadword aligned.", type: .error)

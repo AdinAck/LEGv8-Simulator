@@ -432,14 +432,25 @@ class CPUModel: ObservableObject {
         
         touchedFlags = false
         
-//        if alignment != "lsl" {
-//            throw CPUError.invalidInstruction(alignment)
-//        }
         if ![0, 16, 32, 48].contains(shift) {
             throw CPUError.invalidImmediate(String(shift))
         }
         
         registers[destination]! = value << shift
+    }
+    
+    func movk(_ destination: String, _ value: Int64, _ alignment: String, _ shift: Int64) throws {
+        // verify valid registers and immediate
+        try isValidRegister(destination, true)
+        try isValidImmediate(value)
+        
+        touchedFlags = false
+        
+        if ![0, 16, 32, 48].contains(shift) {
+            throw CPUError.invalidImmediate(String(shift))
+        }
+        
+        registers[destination]! = ((registers[destination]! << shift) >> shift) + value << shift
     }
     
     func mov(_ destination: String, _ source: String) throws {

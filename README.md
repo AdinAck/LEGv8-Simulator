@@ -35,10 +35,6 @@ Below the text editor, there is a "console" displaying a history of instructions
 - STURB
 - LDXR
 - STXR
-- MOVZ
-- MOVK
-- CBZ
-- CBNZ
 - BR
 - BL
 

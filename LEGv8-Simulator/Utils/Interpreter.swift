@@ -128,98 +128,77 @@ class Interpreter: ObservableObject {
     }
     
     // branching
+    func cbz(_ source: String, _ label: String) throws {
+        if cpu.registers[source]! == 0 {
+            lexer.cursor = labelMap[label]!
+        }
+    }
+    
+    func cbnz(_ source: String, _ label: String) throws {
+        if cpu.registers[source]! != 0 {
+            lexer.cursor = labelMap[label]!
+        }
+    }
+    
     func b(_ label: String) throws {
-        // verify label exists
-        try isValidLabel(label)
-        
         lexer.cursor = labelMap[label]!
     }
     
     func b_eq(_ label: String) throws {
-        // verify label exists
-        try isValidLabel(label)
-        
         if !cpu.flags[1] { // z == 0
             lexer.cursor = labelMap[label]!
         }
     }
     
     func b_ne(_ label: String) throws {
-        // verify label exists
-        try isValidLabel(label)
-        
         if cpu.flags[1] { // z == 1
             lexer.cursor = labelMap[label]!
         }
     }
     
     func b_hs(_ label: String) throws {
-        // verify label exists
-        try isValidLabel(label)
-        
         if cpu.flags[2] { // c == 1
             lexer.cursor = labelMap[label]!
         }
     }
     
     func b_lo(_ label: String) throws {
-        // verify label exists
-        try isValidLabel(label)
-        
         if !cpu.flags[2] { // c == 0
             lexer.cursor = labelMap[label]!
         }
     }
     
     func b_hi(_ label: String) throws {
-        // verify label exists
-        try isValidLabel(label)
-        
         if !cpu.flags[1] && cpu.flags[2] { // z == 0 && c == 1
             lexer.cursor = labelMap[label]!
         }
     }
     
     func b_ls(_ label: String) throws {
-        // verify label exists
-        try isValidLabel(label)
-        
         if !(!cpu.flags[1] && cpu.flags[2]) { // !(z == 0 && c == 1)
             lexer.cursor = labelMap[label]!
         }
     }
     
     func b_ge(_ label: String) throws {
-        // verify label exists
-        try isValidLabel(label)
-        
         if cpu.flags[0] == cpu.flags[3] { // n == v
             lexer.cursor = labelMap[label]!
         }
     }
     
     func b_lt(_ label: String) throws {
-        // verify label exists
-        try isValidLabel(label)
-        
         if cpu.flags[0] != cpu.flags[3] { // n != v
             lexer.cursor = labelMap[label]!
         }
     }
     
     func b_gt(_ label: String) throws {
-        // verify label exists
-        try isValidLabel(label)
-        
         if !cpu.flags[1] && cpu.flags[0] == cpu.flags[3] { // z == 0 && n == v
             lexer.cursor = labelMap[label]!
         }
     }
     
     func b_le(_ label: String) throws {
-        // verify label exists
-        try isValidLabel(label)
-        
         if !(!cpu.flags[1] && cpu.flags[0] == cpu.flags[3]) { // !(z == 0 && n == v)
             lexer.cursor = labelMap[label]!
         }
@@ -274,7 +253,7 @@ class Interpreter: ObservableObject {
                     if arguments.count > 2 {
                         let _ = try parseLiteral(arguments[2])
                     }
-                case "movz":
+                case "movz", "movk":
                     try verifyArgumentCount(arguments.count, [4])
                     try isValidRegister(arguments[0])
                     let _ = try parseLiteral(arguments[1])
@@ -299,12 +278,13 @@ class Interpreter: ObservableObject {
                     try isValidRegister(arguments[0])
                     try isValidRegister(arguments[1])
                     let _ = try parseLiteral(arguments[2])
+                case "cbz", "cbnz":
+                    try verifyArgumentCount(arguments.count, [2])
+                    try isValidRegister(arguments[0])
+                    try isValidLabel(arguments[1])
                 case "b", "b.eq", "b.ne", "b.hs", "b.lo", "b.hi", "b.ls", "b.ge", "b.lt", "b.gt", "b.le":
-                    if labelMap.keys.contains(arguments[0]) {
-                        try verifyArgumentCount(arguments.count, [1])
-                    } else {
-                        throw AssemblerError.invalidLabel(arguments[0])
-                    }
+                    try verifyArgumentCount(arguments.count, [1])
+                    try isValidLabel(arguments[0])
                 case "_label":
                     step(mode: mode)
                 case "_end":
@@ -379,6 +359,9 @@ class Interpreter: ObservableObject {
                 case "movz":
                     try cpu.movz(arguments[0], parseLiteral(arguments[1]), arguments[2], parseLiteral(arguments[3]))
                     lastTouchedRegister = arguments[0]
+                case "movk":
+                    try cpu.movk(arguments[0], parseLiteral(arguments[1]), arguments[2], parseLiteral(arguments[3]))
+                    lastTouchedRegister = arguments[0]
                 case "mov":
                     try cpu.mov(arguments[0], arguments[1])
                     lastTouchedRegister = arguments[0]
@@ -412,6 +395,10 @@ class Interpreter: ObservableObject {
                 case "lsr":
                     try cpu.lsr(arguments[0], arguments[1], parseLiteral(arguments[2]))
                     lastTouchedRegister = arguments[0]
+                case "cbz":
+                    try cbz(arguments[0], arguments[1])
+                case "cbnz":
+                    try cbnz(arguments[0], arguments[1])
                 case "b":
                     try b(arguments[0])
                 case "b.eq":

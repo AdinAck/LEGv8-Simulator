@@ -19,13 +19,6 @@ struct RegisterRowView: View {
             Text(name)
                 .font(.custom("Menlo Regular", size: 12))
             
-            Picker("", selection: $displayMode) {
-                Text("H").tag("H")
-                Text("D").tag("D")
-            }
-            .pickerStyle(.segmented)
-            .frame(width: 50)
-            
             Spacer()
             
             HStack {
@@ -42,6 +35,14 @@ struct RegisterRowView: View {
                     .textSelection(.enabled)
                     .help("\(value)")
             }
+            
+            Picker("", selection: $displayMode) {
+                Text("H").tag("H")
+                Text("D").tag("D")
+            }
+            .pickerStyle(.segmented)
+            .frame(width: 50)
+            .padding(.trailing)
         }
     }
 }

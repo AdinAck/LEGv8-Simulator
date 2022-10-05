@@ -34,6 +34,7 @@ struct MemoryView: View {
                         
                         Text("0x\(String(format: "%llX", memory.id))")
                             .font(.custom("Menlo Regular", size: 12))
+                            .textSelection(.enabled)
                     }
                     .animation(.default, value: interpreter.cpu.registers)
                     .animation(.default, value: interpreter.cpu.memory)
@@ -46,20 +47,8 @@ struct MemoryView: View {
                 }
                 
                 TableColumn("Value") { memory in
-                    HStack {
-                        if interpreter.lastTouchedMemory == memory.id {
-                            Image(systemName: "circle.fill")
-                                .font(.system(size: 8))
-                                .foregroundColor(.blue)
-                        }
-                        
-                        Text("0x\(String(format: "%llX", memory.value))")
-                            .font(.custom("Menlo Regular", size: 12))
-                            .textSelection(.enabled)
-                            .help("\(memory.value)")
-                    }
-                    .animation(.default, value: interpreter.lastTouchedMemory)
-                    .animation(.default, value: interpreter.cpu.memory)
+                    MemoryValueColumnView(memory: memory)
+                        .environmentObject(interpreter)
                 }
             }
         }

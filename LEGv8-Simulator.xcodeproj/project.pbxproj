@@ -22,6 +22,7 @@
 		4080D12B28E40CF400DCA947 /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4080D12A28E40CF400DCA947 /* AboutView.swift */; };
 		4095520828EA6A3300697ED9 /* SettingsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4095520728EA6A3300697ED9 /* SettingsModel.swift */; };
 		4095520A28EC811E00697ED9 /* RegisterRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4095520928EC811E00697ED9 /* RegisterRowView.swift */; };
+		4095520E28ED0F6D00697ED9 /* MemoryValueColumnView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4095520D28ED0F6D00697ED9 /* MemoryValueColumnView.swift */; };
 		40D605CD28E74A2F00654D3C /* FlagView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40D605CC28E74A2F00654D3C /* FlagView.swift */; };
 		40D605CF28E7520500654D3C /* RegisterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40D605CE28E7520500654D3C /* RegisterView.swift */; };
 		40D605D128E7523500654D3C /* MemoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40D605D028E7523500654D3C /* MemoryView.swift */; };
@@ -46,6 +47,7 @@
 		4080D12A28E40CF400DCA947 /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
 		4095520728EA6A3300697ED9 /* SettingsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsModel.swift; sourceTree = "<group>"; };
 		4095520928EC811E00697ED9 /* RegisterRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterRowView.swift; sourceTree = "<group>"; };
+		4095520D28ED0F6D00697ED9 /* MemoryValueColumnView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryValueColumnView.swift; sourceTree = "<group>"; };
 		40D605CC28E74A2F00654D3C /* FlagView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlagView.swift; sourceTree = "<group>"; };
 		40D605CE28E7520500654D3C /* RegisterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterView.swift; sourceTree = "<group>"; };
 		40D605D028E7523500654D3C /* MemoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryView.swift; sourceTree = "<group>"; };
@@ -122,6 +124,7 @@
 			children = (
 				4043649528E0C4020052F25D /* ContentView.swift */,
 				40D605D028E7523500654D3C /* MemoryView.swift */,
+				4095520D28ED0F6D00697ED9 /* MemoryValueColumnView.swift */,
 				40D605CE28E7520500654D3C /* RegisterView.swift */,
 				4095520928EC811E00697ED9 /* RegisterRowView.swift */,
 				40D605CC28E74A2F00654D3C /* FlagView.swift */,
@@ -254,6 +257,7 @@
 				4043649628E0C4020052F25D /* ContentView.swift in Sources */,
 				4080D12728E4081200DCA947 /* SettingsView.swift in Sources */,
 				4080D12B28E40CF400DCA947 /* AboutView.swift in Sources */,
+				4095520E28ED0F6D00697ED9 /* MemoryValueColumnView.swift in Sources */,
 				404364B028E0DDE70052F25D /* Lexer.swift in Sources */,
 				40D605CD28E74A2F00654D3C /* FlagView.swift in Sources */,
 				404364AA28E0DD620052F25D /* CPUModel.swift in Sources */,

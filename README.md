@@ -22,7 +22,7 @@ There are three buttons in the top right:
 Below the text editor, there is a "console" displaying a history of instructions executed, the current line of execution, the program counter and line number values for each instruction, and errors if the occur.
 
 # TODO
-- Customizable execution limit
+- support loading data
 - Optimize lexer and improve verbosity
 - Line by line execution in monaco editor (hard)
 
@@ -54,7 +54,7 @@ Below the text editor, there is a "console" displaying a history of instructions
 
 ## Shared
 - It is possible the lexer may mistakenly accept incorrectly formatted instruction arguments as comma separators are treated the same as whitespace.
-- `movz` may be able to accept `lsr` as an offset instruction but I have no idea 
+- InvalidMemoryAddress error may incorrectly display the invalid address. This is a bug with printf so it is impractical for me to resolve it.
 
 # Contributions
 If you would like to contribute to the project, please contact me (see my [profile README](https://github.com/AdinAck)).

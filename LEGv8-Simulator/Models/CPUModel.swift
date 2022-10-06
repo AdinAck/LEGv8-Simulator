@@ -195,8 +195,14 @@ class CPUModel: ObservableObject {
         }
         
         // set z and n, and c flags
-        if s >> 63 == 1 { // unsigned overflow
-            c = true
+        if s > (1 << 63 - 2) { // unsigned overflow?
+            if s < (1 << 63) { // 1 or 2 away from overflow
+                if (a % 2) != 0 && (b % 2) != 0 { // push over edge to overflow
+                    c = true
+                }
+            } else { // well over threshold
+                c = true
+            }
         }
         
         if result == 0 {
@@ -239,8 +245,14 @@ class CPUModel: ObservableObject {
         }
         
         // set z and n, and c flags
-        if s >> 63 == 1 { // unsigned overflow
-            c = true
+        if s > (1 << 63 - 2) { // unsigned overflow?
+            if s < (1 << 63) { // 1 or 2 away from overflow
+                if (a % 2) != 0 && (b % 2) != 0 { // push over edge to overflow
+                    c = true
+                }
+            } else { // well over threshold
+                c = true
+            }
         }
         
         if result == 0 {
@@ -331,7 +343,7 @@ class CPUModel: ObservableObject {
         }
         
         // set z and n, and c flags
-        if s >> 63 == 1 { // unsigned overflow
+        if a >= b {
             c = true
         }
         
@@ -375,7 +387,7 @@ class CPUModel: ObservableObject {
         }
         
         // set z and n, and c flags
-        if s >> 63 == 1 { // unsigned overflow
+        if a >= b { // unsigned overflow
             c = true
         }
         

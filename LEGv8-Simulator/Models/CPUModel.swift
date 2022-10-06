@@ -184,18 +184,15 @@ class CPUModel: ObservableObject {
         let b = registers[operand2]!
         
         let s = (a >> 1) + (b >> 1)
-        var result: Int64 = 0
+        let result = a &+ b
         
         if (a < 0 && b < 0 && result > 0) || (a > 0 && b > 0 && result < 0) { // signed underflow and overflow
-            result = s << 1 + (a % 2) ^ (b % 2)
             // set v flag
             v = true
-        } else {
-            result = a + b
         }
         
         // set z and n, and c flags
-        if s > (1 << 63 - 2) { // unsigned overflow?
+        if s > (1 << 62 + (1 << 62 - 2)) { // unsigned overflow?
             if s < (1 << 63) { // 1 or 2 away from overflow
                 if (a % 2) != 0 && (b % 2) != 0 { // push over edge to overflow
                     c = true
@@ -234,18 +231,15 @@ class CPUModel: ObservableObject {
         let b = operand2
         
         let s = (a >> 1) + (b >> 1)
-        var result: Int64 = 0
+        let result = a &+ b
         
         if (a < 0 && b < 0 && result > 0) || (a > 0 && b > 0 && result < 0) { // signed underflow and overflow
-            result = s << 1 + (a % 2) ^ (b % 2)
             // set v flag
             v = true
-        } else {
-            result = a + b
         }
         
         // set z and n, and c flags
-        if s > (1 << 63 - 2) { // unsigned overflow?
+        if s > (1 << 62 + (1 << 62 - 2)) { // unsigned overflow?
             if s < (1 << 63) { // 1 or 2 away from overflow
                 if (a % 2) != 0 && (b % 2) != 0 { // push over edge to overflow
                     c = true
@@ -280,14 +274,7 @@ class CPUModel: ObservableObject {
         let a = registers[operand1]!
         let b = registers[operand2]!
         
-        let s = (a >> 1) - (b >> 1)
-        var result: Int64 = 0
-        
-        if (a < 0 && b > 0 && result > 0) || (a > 0 && b < 0 && result < 0) { // signed underflow and overflow
-            result = s << 1 + (a % 2) ^ (b % 2)
-        } else {
-            result = a - b
-        }
+        let result = a &- b
         
         registers[destination] = result
     }
@@ -304,14 +291,7 @@ class CPUModel: ObservableObject {
         let a = registers[operand1]!
         let b = operand2
         
-        let s = (a >> 1) - (b >> 1)
-        var result: Int64 = 0
-        
-        if (a < 0 && b > 0 && result > 0) || (a > 0 && b < 0 && result < 0) { // signed underflow and overflow
-            result = s << 1 + (a % 2) ^ (b % 2)
-        } else {
-            result = a - b
-        }
+        let result = a &- b
         
         registers[destination] = result
     }
@@ -331,15 +311,11 @@ class CPUModel: ObservableObject {
         let a = registers[operand1]!
         let b = registers[operand2]!
         
-        let s = (a >> 1) - (b >> 1)
-        var result: Int64 = 0
+        let result = a &- b
         
         if (a < 0 && b > 0 && result > 0) || (a > 0 && b < 0 && result < 0) { // signed underflow and overflow
-            result = s << 1 + (a % 2) ^ (b % 2)
             // set v flag
             v = true
-        } else {
-            result = a - b
         }
         
         // set z and n, and c flags
@@ -375,15 +351,11 @@ class CPUModel: ObservableObject {
         let a = registers[operand1]!
         let b = operand2
         
-        let s = (a >> 1) - (b >> 1)
-        var result: Int64 = 0
+        let result = a &- b
         
         if (a < 0 && b > 0 && result > 0) || (a > 0 && b < 0 && result < 0) { // signed underflow and overflow
-            result = s << 1 + (a % 2) ^ (b % 2)
             // set v flag
             v = true
-        } else {
-            result = a - b
         }
         
         // set z and n, and c flags
@@ -600,7 +572,9 @@ class CPUModel: ObservableObject {
         
         touchedFlags = false
         
-        registers[destination] = registers[operand1]! << operand2
+        let a = registers[operand1]!
+        
+        registers[destination] = a < 0 ? (a &- (1 << 63)) << 1 : a << operand2
     }
     
     func lsr(_ destination: String, _ operand1: String, _ operand2: Int64) throws {
@@ -611,6 +585,8 @@ class CPUModel: ObservableObject {
         
         touchedFlags = false
         
-        registers[destination] = registers[operand1]! >> operand2
+        let a = registers[operand1]!
+        
+        registers[destination]! = a < 0 ? ((a &- (1 << 63)) >> operand2) &+ (1 << (63 - operand2)) : a >> operand2
     }
 }

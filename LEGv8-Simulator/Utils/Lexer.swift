@@ -7,41 +7,71 @@
 
 import Foundation
 
+enum LexerMode {
+    case text, long
+}
+
+enum LexerError: Error {
+    case invalidDataMarker(_ marker: String)
+}
+
 class Lexer: ObservableObject {
     var lines: [String]
     @Published var cursor: Int = 0
     
     let specialCharacters: [Character] = ["\t", "\r"]
     
+    var mode: LexerMode = .text
+    
     init(text: String) {
         lines = text.components(separatedBy: "\n").map { sub in String(sub)}
     }
     
     // TODO: lexer does not differentiate commas and whitespace
-    func parseNextLine() -> (String, [String]) {
+    func parseNextLine() throws -> (String, [String]) {
         guard cursor < lines.count else { return ("_end", []) }
         
-        if lines[cursor] == "" {
-            cursor += 1
-            return parseNextLine()
-        }
-        
+        // remove special characters and split by whitespace
         let line: [String] = lines[cursor].map({ char in if specialCharacters.contains(char) { return " " } else { return char }}).split(separator: " ").map { sub in String(sub)}
         
-        if line.count == 0{
+        if line.count == 0 { // empty line (or only special characters) disregard nonetheless
             cursor += 1
-            return parseNextLine()
+            return try parseNextLine()
         }
         
+        // instruction is first item in line
         let instruction: String = line[0].filter({ char in !specialCharacters.contains(char)})
+        
         if instruction.contains("/") { // line is only comment
             cursor += 1
-            return parseNextLine()
-        } else if instruction.contains(":") {
-            let label = String(instruction[..<instruction.firstIndex(of: ":")!])
+            return try parseNextLine()
+        } else if instruction[instruction.startIndex] == "." { // data marker
+            let marker = String(instruction[instruction.index(after: instruction.startIndex)...])
+            switch marker {
+            case "text":
+                mode = .text
+            case "long":
+                mode = .long
+            default:
+                throw LexerError.invalidDataMarker(marker)
+            }
+            
             cursor += 1
-            print("[Lexer] Label: \(label)")
-            return ("_label", [label])
+            return try parseNextLine()
+            
+        } else if instruction[instruction.index(before: instruction.endIndex)] == ":" { // must be a label
+            if mode == .text {
+                let label = String(instruction[..<instruction.firstIndex(of: ":")!])
+                cursor += 1
+                print("[Lexer] Label: \(label)")
+                return ("_label", [label])
+            } else if mode == .long {
+                let label = String(instruction[..<instruction.firstIndex(of: ":")!])
+                let args = line[1...].map {sub in String(sub)}
+                cursor += 1
+                print("[Lexer] \(label): \(args)")
+                return ("_long", [label] + args)
+            }
         }
         
         var args: [String] = []

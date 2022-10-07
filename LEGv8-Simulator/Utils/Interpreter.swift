@@ -8,7 +8,7 @@
 import Foundation
 
 enum LineType {
-    case normal, label, error
+    case normal, label, data, error
 }
 
 struct LogEntry: Identifiable, Equatable {
@@ -46,6 +46,9 @@ class Interpreter: ObservableObject {
     @Published var log: [LogEntry] = []
     
     var labelMap: [String: Int] = [:]
+    var dataMap: [String: Int64] = [:]
+    
+    private var dataPointer: Int64 = 0
     
     func buildLabelMap(_ text: String) {
         start(text)
@@ -59,12 +62,12 @@ class Interpreter: ObservableObject {
         buildLabelMap(text)
         start(text)
         
+        cpu = CPUModel()
+        
         error = false
         while running {
             step(mode: .assembling)
         }
-        
-        cpu = CPUModel()
         
         if !error {
             assembled = true
@@ -73,11 +76,11 @@ class Interpreter: ObservableObject {
     
     func start(_ text: String) {
         lexer = Lexer(text: text)
-        cpu = CPUModel()
         cpu.updateStackPointer()
         
         programCounter = 0
         log = []
+        dataPointer = 0
         
         running = true
     }
@@ -117,6 +120,11 @@ class Interpreter: ObservableObject {
         guard labelMap.keys.contains(label) else { throw AssemblerError.invalidLabel(label) }
     }
     
+    private func isValidMarker(_ marker: String) throws {
+        print(dataMap)
+        guard dataMap.keys.contains(marker) else { throw AssemblerError.invalidLabel(marker) }
+    }
+    
     private func verifyArgumentCount(_ given: Int, _ expected: [Int]) throws {
         guard expected.contains(given) else { throw AssemblerError.wrongNumberOfArguments(given, expected)}
     }
@@ -125,6 +133,12 @@ class Interpreter: ObservableObject {
         if mode == .running {
             running = false
         }
+    }
+    
+    // loading data
+    private func loadLong(_ number: Int64) {
+        cpu.memory[dataPointer] = Memory(id: dataPointer, value: number)
+        dataPointer += 8 // long is 8 bytes
     }
     
     // branching
@@ -140,68 +154,77 @@ class Interpreter: ObservableObject {
         }
     }
     
-    func b(_ label: String) throws {
+    func b(_ label: String) {
         lexer.cursor = labelMap[label]!
     }
     
-    func b_eq(_ label: String) throws {
-        if !cpu.flags[1] { // z == 0
-            lexer.cursor = labelMap[label]!
-        }
-    }
-    
-    func b_ne(_ label: String) throws {
+    func b_eq(_ label: String) {
         if cpu.flags[1] { // z == 1
             lexer.cursor = labelMap[label]!
         }
     }
     
-    func b_hs(_ label: String) throws {
+    func b_ne(_ label: String) {
+        if !cpu.flags[1] { // z == 0
+            lexer.cursor = labelMap[label]!
+        }
+    }
+    
+    func b_hs(_ label: String) {
         if cpu.flags[2] { // c == 1
             lexer.cursor = labelMap[label]!
         }
     }
     
-    func b_lo(_ label: String) throws {
+    func b_lo(_ label: String) {
         if !cpu.flags[2] { // c == 0
             lexer.cursor = labelMap[label]!
         }
     }
     
-    func b_hi(_ label: String) throws {
+    func b_hi(_ label: String) {
         if !cpu.flags[1] && cpu.flags[2] { // z == 0 && c == 1
             lexer.cursor = labelMap[label]!
         }
     }
     
-    func b_ls(_ label: String) throws {
+    func b_ls(_ label: String) {
         if !(!cpu.flags[1] && cpu.flags[2]) { // !(z == 0 && c == 1)
             lexer.cursor = labelMap[label]!
         }
     }
     
-    func b_ge(_ label: String) throws {
+    func b_ge(_ label: String) {
         if cpu.flags[0] == cpu.flags[3] { // n == v
             lexer.cursor = labelMap[label]!
         }
     }
     
-    func b_lt(_ label: String) throws {
+    func b_lt(_ label: String) {
         if cpu.flags[0] != cpu.flags[3] { // n != v
             lexer.cursor = labelMap[label]!
         }
     }
     
-    func b_gt(_ label: String) throws {
+    func b_gt(_ label: String) {
         if !cpu.flags[1] && cpu.flags[0] == cpu.flags[3] { // z == 0 && n == v
             lexer.cursor = labelMap[label]!
         }
     }
     
-    func b_le(_ label: String) throws {
+    func b_le(_ label: String) {
         if !(!cpu.flags[1] && cpu.flags[0] == cpu.flags[3]) { // !(z == 0 && n == v)
             lexer.cursor = labelMap[label]!
         }
+    }
+    
+    func br(_ register: String) {
+        lexer.cursor = Int(cpu.registers[register]!)
+    }
+    
+    func bl(_ label: String) {
+        cpu.registers["lr"] = Int64(lexer.cursor)
+        b(label)
     }
     
     func step(mode: RunMode) {
@@ -211,30 +234,32 @@ class Interpreter: ObservableObject {
             return
         }
         
-        let (instruction, arguments) = lexer.parseNextLine()
-        
-        if instruction == "_end" {
-            writeToLog("")
-        } else if instruction == "_label" {
-            if mode == .running {
-                writeToLog(lexer.lines[lexer.cursor - 1], type: .label)
-            } else if mode == .labelling {
-                labelMap[arguments[0]] = lexer.cursor - 1
+        do {
+            let (instruction, arguments) = try lexer.parseNextLine()
+            
+            if instruction == "_end" {
+                writeToLog("")
+            } else if instruction == "_label" {
+                if mode == .running {
+                    writeToLog(lexer.lines[lexer.cursor - 1], type: .label)
+                } else if mode == .labelling {
+                    labelMap[arguments[0]] = lexer.cursor - 1
+                }
+            } else if instruction == "_long" {
+                writeToLog(lexer.lines[lexer.cursor - 1], type: .data)
+            } else {
+                if mode == .running {
+                    writeToLog(lexer.lines[lexer.cursor - 1])
+                }
             }
-        } else {
-            if mode == .running {
-                writeToLog(lexer.lines[lexer.cursor - 1])
-            }
-        }
-        
-        
-        lastTouchedRegister = nil
-        lastTouchedMemory = nil
-        cpu.touchedFlags = false
-        
-        if mode == .assembling {
-            // assembly
-            do {
+            
+            
+            lastTouchedRegister = nil
+            lastTouchedMemory = nil
+            cpu.touchedFlags = false
+            
+            if mode == .assembling {
+                // assembly
                 switch instruction {
                 case "add", "adds", "sub", "subs":
                     try verifyArgumentCount(arguments.count, [3])
@@ -259,10 +284,6 @@ class Interpreter: ObservableObject {
                     let _ = try parseLiteral(arguments[1])
                     guard arguments[2] == "lsl" else { throw AssemblerError.invalidInstruction(arguments[2])}
                     let _ = try parseLiteral(arguments[3])
-                case "mov":
-                    try verifyArgumentCount(arguments.count, [2])
-                    try isValidRegister(arguments[0])
-                    try isValidRegister(arguments[1])
                 case "and", "ands", "orr", "eor":
                     try verifyArgumentCount(arguments.count, [3])
                     try isValidRegister(arguments[0])
@@ -282,9 +303,37 @@ class Interpreter: ObservableObject {
                     try verifyArgumentCount(arguments.count, [2])
                     try isValidRegister(arguments[0])
                     try isValidLabel(arguments[1])
-                case "b", "b.eq", "b.ne", "b.hs", "b.lo", "b.hi", "b.ls", "b.ge", "b.lt", "b.gt", "b.le":
+                case "b", "b.eq", "b.ne", "b.hs", "b.lo", "b.hi", "b.ls", "b.ge", "b.lt", "b.gt", "b.le", "bl":
                     try verifyArgumentCount(arguments.count, [1])
                     try isValidLabel(arguments[0])
+                case "br":
+                    try verifyArgumentCount(arguments.count, [1])
+                    try isValidRegister(arguments[0])
+                case "mov":
+                    try verifyArgumentCount(arguments.count, [2])
+                    try isValidRegister(arguments[0])
+                    try isValidRegister(arguments[1])
+                case "cmp":
+                    try verifyArgumentCount(arguments.count, [2])
+                    try isValidRegister(arguments[0])
+                    try isValidRegister(arguments[1])
+                case "cmpi":
+                    try verifyArgumentCount(arguments.count, [2])
+                    try isValidRegister(arguments[0])
+                    let _ = try parseLiteral(arguments[1])
+                case "lda":
+                    try verifyArgumentCount(arguments.count, [2])
+                    try isValidRegister(arguments[0])
+                    try isValidMarker(arguments[1])
+                case "_long":
+                    dataMap[arguments[0]] = dataPointer
+                    
+                    for argument in arguments[1...] {
+                        let num = try parseLiteral(argument)
+                        loadLong(num)
+                    }
+                    
+                    step(mode: mode)
                 case "_label":
                     step(mode: mode)
                 case "_end":
@@ -294,27 +343,8 @@ class Interpreter: ObservableObject {
                     writeToLog("[UnknownInstruction] Unkown instruction \"\(instruction)\".", type: .error)
                     doStop(mode: mode)
                 }
-            } catch AssemblerError.invalidInstruction(let instruction) {
-                writeToLog("[InvalidInstruction] Invalid instruction \"\(instruction)\".", type: .error)
-                doStop(mode: mode)
-            } catch AssemblerError.invalidRegister(let register) {
-                writeToLog("[InvalidRegister] Invalid register \"\(register)\".", type: .error)
-                doStop(mode: mode)
-            } catch AssemblerError.invalidLiteral(let literal) {
-                writeToLog("[InvalidLiteral] Invalid literal value \"\(literal)\". Literal values may range between 0 and 4095.", type: .error)
-                doStop(mode: mode)
-            } catch AssemblerError.invalidLabel(let label) {
-                writeToLog("[InvalidLabel] The referenced label \"\(label)\" does not exist.", type: .error)
-                doStop(mode: mode)
-            } catch AssemblerError.wrongNumberOfArguments(let given, let expected) {
-                writeToLog("[WrongNumberOfArguments] Was given \(given) arguments but expected \(expected).", type: .error)
-                doStop(mode: mode)
-            } catch {
-                writeToLog("Unknown error.", type: .error)
-            }
-        } else if mode == .running{
-            // execution
-            do {
+            } else if mode == .running{
+                // execution
                 switch instruction {
                 case "add":
                     try cpu.add(arguments[0], arguments[1], arguments[2])
@@ -362,9 +392,6 @@ class Interpreter: ObservableObject {
                 case "movk":
                     try cpu.movk(arguments[0], parseLiteral(arguments[1]), arguments[2], parseLiteral(arguments[3]))
                     lastTouchedRegister = arguments[0]
-                case "mov":
-                    try cpu.mov(arguments[0], arguments[1])
-                    lastTouchedRegister = arguments[0]
                 case "and":
                     try cpu.and(arguments[0], arguments[1], arguments[2])
                     lastTouchedRegister = arguments[0]
@@ -400,27 +427,42 @@ class Interpreter: ObservableObject {
                 case "cbnz":
                     try cbnz(arguments[0], arguments[1])
                 case "b":
-                    try b(arguments[0])
+                    b(arguments[0])
                 case "b.eq":
-                    try b_eq(arguments[0])
+                    b_eq(arguments[0])
                 case "b.ne":
-                    try b_ne(arguments[0])
+                    b_ne(arguments[0])
                 case "b.hs":
-                    try b_hs(arguments[0])
+                    b_hs(arguments[0])
                 case "b.lo":
-                    try b_lo(arguments[0])
+                    b_lo(arguments[0])
                 case "b.hi":
-                    try b_hi(arguments[0])
+                    b_hi(arguments[0])
                 case "b.ls":
-                    try b_ls(arguments[0])
+                    b_ls(arguments[0])
                 case "b.ge":
-                    try b_ge(arguments[0])
+                    b_ge(arguments[0])
                 case "b.lt":
-                    try b_lt(arguments[0])
+                    b_lt(arguments[0])
                 case "b.gt":
-                    try b_gt(arguments[0])
+                    b_gt(arguments[0])
                 case "b.le":
-                    try b_le(arguments[0])
+                    b_le(arguments[0])
+                case "br":
+                    br(arguments[0])
+                case "bl":
+                    bl(arguments[0])
+                case "mov":
+                    try cpu.add(arguments[0], arguments[1], "xzr")
+                    lastTouchedRegister = arguments[0]
+                case "cmp":
+                    try cpu.subs("xzr", arguments[0], arguments[1])
+                case "cmpi":
+                    try cpu.subis("xzr", arguments[0], parseLiteral(arguments[1]))
+                case "lda":
+                    cpu.lda(arguments[0], dataMap[arguments[1]]!)
+                case "_long":
+                    step(mode: mode)
                 case "_label":
                     step(mode: mode)
                 case "_end":
@@ -430,25 +472,40 @@ class Interpreter: ObservableObject {
                     writeToLog("[UnknownInstruction] Unkown instruction \"\(instruction)\".", type: .error)
                     doStop(mode: mode)
                 }
-            } catch CPUError.readOnlyRegister(let register) {
-                writeToLog("[ReadOnlyRegister] Register \"\(register)\" is read only.", type: .error)
-                doStop(mode: mode)
-            } catch CPUError.invalidImmediate(let literal) {
-                writeToLog("[InvalidLiteral] Invalid literal value \"\(literal)\". Immediate values may range between 0 and 4095.", type: .error)
-                doStop(mode: mode)
-            } catch CPUError.invalidIndex(let literal) {
-                writeToLog("[InvalidLiteral] Invalid literal value \"\(literal)\". Index values may range between -256 and 255 inclusive.", type: .error)
-                doStop(mode: mode)
-            } catch CPUError.invalidMemoryAccess(let address) {
-                writeToLog("[InvalidMemoryAccess] Memory address \"0x\(String(format: "%11X", address))\" is outside stack bounds.", type: .error) // this displays incorrectly - known printf bug
-                doStop(mode: mode)
-            } catch CPUError.stackPointerMisaligned(let address) {
-                writeToLog("[StackPointerMisaligned] Stack pointer address \"\(address)\" is not quadword aligned.", type: .error)
-                doStop(mode: mode)
-            } catch {
-                writeToLog("Unknown error.", type: .error)
-                doStop(mode: mode)
             }
+        } catch AssemblerError.invalidInstruction(let instruction) {
+            writeToLog("[InvalidInstruction] Invalid instruction \"\(instruction)\".", type: .error)
+            doStop(mode: mode)
+        } catch AssemblerError.invalidRegister(let register) {
+            writeToLog("[InvalidRegister] Invalid register \"\(register)\".", type: .error)
+            doStop(mode: mode)
+        } catch AssemblerError.invalidLiteral(let literal) {
+            writeToLog("[InvalidLiteral] Invalid literal value \"\(literal)\". Literal values may range between 0 and 4095.", type: .error)
+            doStop(mode: mode)
+        } catch AssemblerError.invalidLabel(let label) {
+            writeToLog("[InvalidLabel] The referenced label \"\(label)\" does not exist.", type: .error)
+            doStop(mode: mode)
+        } catch AssemblerError.wrongNumberOfArguments(let given, let expected) {
+            writeToLog("[WrongNumberOfArguments] Was given \(given) arguments but expected \(expected).", type: .error)
+            doStop(mode: mode)
+        } catch CPUError.invalidImmediate(let literal) {
+            writeToLog("[InvalidLiteral] Invalid literal value \"\(literal)\". Immediate values may range between 0 and 4095.", type: .error)
+            doStop(mode: mode)
+        } catch CPUError.invalidIndex(let literal) {
+            writeToLog("[InvalidLiteral] Invalid literal value \"\(literal)\". Index values may range between -256 and 255 inclusive.", type: .error)
+            doStop(mode: mode)
+        } catch CPUError.invalidMemoryAccess(let address) {
+            writeToLog("[InvalidMemoryAccess] Memory address \"0x\(String(format: "%11X", address))\" is outside stack bounds.", type: .error) // this displays incorrectly - known printf bug
+            doStop(mode: mode)
+        } catch CPUError.stackPointerMisaligned(let address) {
+            writeToLog("[StackPointerMisaligned] Stack pointer address \"\(address)\" is not quadword aligned.", type: .error)
+            doStop(mode: mode)
+        } catch LexerError.invalidDataMarker(let marker) {
+            writeToLog("[InvalidDataMarker] Marker \"\(marker)\" is unrecognized.")
+            doStop(mode: mode)
+        } catch {
+            writeToLog("Unknown error.", type: .error)
+            doStop(mode: mode)
         }
         
         cpu.updateStackPointer()

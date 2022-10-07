@@ -20,7 +20,8 @@ return {
     'and', 'ands', 'orr', 'eor', 'andi', 'andis', 'orri', 'eori', 'lsl', 'lsr', // logical
     'cbz', 'cbnz', 'b', 'br', 'bl', // branching
     'eq', 'ne', 'hs', 'lo', 'hi', 'ls', 'ge', 'lt', 'gt', 'le', // condition codes
-    'mov' // mov works as expected but is not mentioned in the documentation
+    'mov', 'cmp', 'cmpi', 'lda', // aliases
+    'text', 'long' // data markers
   ],
 
   typeKeywords: [],

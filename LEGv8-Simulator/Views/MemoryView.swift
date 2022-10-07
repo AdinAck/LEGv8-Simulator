@@ -10,6 +10,8 @@ import SwiftUI
 struct MemoryView: View {
     @EnvironmentObject var interpreter: Interpreter
     
+    @State private var selection: Int64?
+    
     var body: some View {
         VStack {
             HStack {
@@ -22,7 +24,7 @@ struct MemoryView: View {
             
             // table seems to improperly receive propagated animations
             // manually invoking .animation resolves it
-            Table(interpreter.cpu.memory.values.sorted()) {
+            Table(interpreter.cpu.memory.values.sorted(), selection: $selection) {
                 TableColumn("Address") { memory in
                     HStack {
                         if interpreter.cpu.registers["sp"]! == memory.id {

@@ -17,7 +17,7 @@ struct ConsoleView: View {
                 LazyVStack(alignment: .leading) {
                     if interpreter.log.count > 0 {
                         ForEach(interpreter.log, id: \.id) { entry in
-                            ConsoleRowView(entry: entry, color: entry.type == LineType.error ? .red : entry.id == interpreter.log.count - 1 ? .blue : entry.type == LineType.label ? .yellow : .green)
+                            ConsoleRowView(entry: entry, color: entry.type == LineType.error ? .red : entry.id == interpreter.log.count - 1 ? .blue : entry.type == LineType.label ? .yellow : entry.type == LineType.data ? .purple : .green)
                                 .id(entry.id)
                         }
                     }

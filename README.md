@@ -22,7 +22,6 @@ There are three buttons in the top right:
 Below the text editor, there is a "console" displaying a history of instructions executed, the current line of execution, the program counter and line number values for each instruction, and errors if the occur.
 
 # TODO
-- support loading data
 - Optimize lexer and improve verbosity
 - Line by line execution in monaco editor (hard)
 
@@ -35,8 +34,6 @@ Below the text editor, there is a "console" displaying a history of instructions
 - STURB
 - LDXR
 - STXR
-- BR
-- BL
 
 # Known issues 🐞
 ## iOS

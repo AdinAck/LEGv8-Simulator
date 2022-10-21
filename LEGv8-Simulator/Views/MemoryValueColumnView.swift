@@ -30,6 +30,12 @@ struct MemoryValueColumnView: View {
                     .foregroundColor(.blue)
             }
             
+            if interpreter.lastUsedMemory == memory.id {
+                Image(systemName: "circle.fill")
+                    .font(.system(size: 8))
+                    .foregroundColor(.purple)
+            }
+            
             Text(displayMode == "H" ? "0x\(String(format: "%llX", memory.value))" : "\(memory.value)")
                 .font(.custom("Menlo Regular", size: 12))
                 .textSelection(.enabled)

@@ -34,6 +34,13 @@ struct MemoryView: View {
                             
                         }
                         
+                        if interpreter.cpu.registers["fp"]! == memory.id {
+                            Image(systemName: "circle.fill")
+                                .font(.system(size: 8))
+                                .foregroundColor(.orange)
+                            
+                        }
+                        
                         Text("0x\(String(format: "%llX", memory.id))")
                             .font(.custom("Menlo Regular", size: 12))
                             .textSelection(.enabled)
@@ -43,7 +50,7 @@ struct MemoryView: View {
                 }
                 
                 TableColumn("Distance from SP") { memory in
-                    Text("\(Int64(memory.id) - Int64(interpreter.cpu.registers["sp"]!))")
+                    Text(Int64(memory.id) >= interpreter.cpu.registers["sp"]! && Int64(memory.id) <= interpreter.cpu.registers["fp"]! ? "\(Int64(memory.id) - Int64(interpreter.cpu.registers["sp"]!))" : "-")
                         .font(.custom("Menlo Regular", size: 12))
                         .animation(.default, value: interpreter.cpu.registers)
                 }

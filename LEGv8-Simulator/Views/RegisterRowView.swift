@@ -28,6 +28,12 @@ struct RegisterRowView: View {
                         .foregroundColor(.blue)
                 }
                 
+                if interpreter.lastUsedRegisters.contains(name) {
+                    Image(systemName: "circle.fill")
+                        .font(.system(size: 8))
+                        .foregroundColor(.purple)
+                }
+                
                 let value = interpreter.cpu.registers[name]!
                 
                 Text(displayMode == "H" ? "0x\(String(format: "%llX", value))" : "\(value)")

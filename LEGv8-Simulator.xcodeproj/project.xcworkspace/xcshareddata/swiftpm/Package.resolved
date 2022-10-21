@@ -1,0 +1,14 @@
+{
+  "pins" : [
+    {
+      "identity" : "swiftymonaco",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/ICToolkit/SwiftyMonaco",
+      "state" : {
+        "branch" : "main",
+        "revision" : "715dd8575c33602d3e5041fd2edc1bbe23e12653"
+      }
+    }
+  ],
+  "version" : 2
+}

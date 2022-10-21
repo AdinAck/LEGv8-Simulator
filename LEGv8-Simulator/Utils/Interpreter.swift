@@ -42,6 +42,8 @@ class Interpreter: ObservableObject {
     
     @Published var lastTouchedRegister: String?
     @Published var lastTouchedMemory: Int64?
+    @Published var lastUsedRegisters: [String] = []
+    @Published var lastUsedMemory: Int64?
     
     @Published var log: [LogEntry] = []
     
@@ -219,11 +221,11 @@ class Interpreter: ObservableObject {
     }
     
     func br(_ register: String) {
-        lexer.cursor = Int(cpu.registers[register]!)
+        lexer.cursor = Int(cpu.registers[register]!) / 4
     }
     
     func bl(_ label: String) {
-        cpu.registers["lr"] = Int64(lexer.cursor)
+        cpu.registers["lr"] = Int64(lexer.cursor) * 4
         b(label)
     }
     
@@ -256,12 +258,14 @@ class Interpreter: ObservableObject {
             
             lastTouchedRegister = nil
             lastTouchedMemory = nil
+            lastUsedRegisters = []
+            lastUsedMemory = nil
             cpu.touchedFlags = false
             
             if mode == .assembling {
                 // assembly
                 switch instruction {
-                case "add", "adds", "sub", "subs":
+                case "add", "adds", "sub", "subs", "mul":
                     try verifyArgumentCount(arguments.count, [3])
                     try isValidRegister(arguments[0])
                     try isValidRegister(arguments[1])
@@ -349,27 +353,40 @@ class Interpreter: ObservableObject {
                 case "add":
                     try cpu.add(arguments[0], arguments[1], arguments[2])
                     lastTouchedRegister = arguments[0]
+                    lastUsedRegisters = [arguments[1], arguments[2]]
                 case "addi":
                     try cpu.addi(arguments[0], arguments[1], parseLiteral(arguments[2]))
                     lastTouchedRegister = arguments[0]
+                    
+                    lastUsedRegisters = [arguments[1]]
                 case "adds":
                     try cpu.adds(arguments[0], arguments[1], arguments[2])
                     lastTouchedRegister = arguments[0]
+                    lastUsedRegisters = [arguments[1], arguments[2]]
                 case "addis":
                     try cpu.addis(arguments[0], arguments[1], parseLiteral(arguments[2]))
                     lastTouchedRegister = arguments[0]
+                    lastUsedRegisters = [arguments[1]]
                 case "sub":
                     try cpu.sub(arguments[0], arguments[1], arguments[2])
                     lastTouchedRegister = arguments[0]
+                    lastUsedRegisters = [arguments[1], arguments[2]]
                 case "subi":
                     try cpu.subi(arguments[0], arguments[1], parseLiteral(arguments[2]))
                     lastTouchedRegister = arguments[0]
+                    lastUsedRegisters = [arguments[1]]
                 case "subs":
                     try cpu.subs(arguments[0], arguments[1], arguments[2])
                     lastTouchedRegister = arguments[0]
+                    lastUsedRegisters = [arguments[1], arguments[2]]
                 case "subis":
                     try cpu.subis(arguments[0], arguments[1], parseLiteral(arguments[2]))
                     lastTouchedRegister = arguments[0]
+                    lastUsedRegisters = [arguments[1]]
+                case "mul":
+                    try cpu.mul(arguments[0], arguments[1], arguments[2])
+                    lastTouchedRegister = arguments[0]
+                    lastUsedRegisters = [arguments[1], arguments[2]]
                 case "ldur":
                     var offset: Int64 = 0
                     if arguments.count > 2 {
@@ -378,6 +395,7 @@ class Interpreter: ObservableObject {
                     
                     try cpu.ldur(arguments[0], arguments[1], offset)
                     lastTouchedRegister = arguments[0]
+                    lastUsedMemory = cpu.registers[arguments[1]]! + offset
                 case "stur":
                     var offset: Int64 = 0
                     if arguments.count > 2 {
@@ -386,6 +404,7 @@ class Interpreter: ObservableObject {
                     
                     try cpu.stur(arguments[0], arguments[1], offset)
                     lastTouchedMemory = cpu.registers[arguments[1]]! + offset
+                    lastUsedRegisters = [arguments[0]]
                 case "movz":
                     try cpu.movz(arguments[0], parseLiteral(arguments[1]), arguments[2], parseLiteral(arguments[3]))
                     lastTouchedRegister = arguments[0]
@@ -395,37 +414,49 @@ class Interpreter: ObservableObject {
                 case "and":
                     try cpu.and(arguments[0], arguments[1], arguments[2])
                     lastTouchedRegister = arguments[0]
+                    lastUsedRegisters = [arguments[1], arguments[2]]
                 case "andi":
                     try cpu.andi(arguments[0], arguments[1], parseLiteral(arguments[2]))
                     lastTouchedRegister = arguments[0]
+                    lastUsedRegisters = [arguments[1]]
                 case "ands":
                     try cpu.ands(arguments[0], arguments[1], arguments[2])
                     lastTouchedRegister = arguments[0]
+                    lastUsedRegisters = [arguments[1], arguments[2]]
                 case "andis":
                     try cpu.andis(arguments[0], arguments[1], parseLiteral(arguments[2]))
                     lastTouchedRegister = arguments[0]
+                    lastUsedRegisters = [arguments[1]]
                 case "orr":
                     try cpu.orr(arguments[0], arguments[1], arguments[2])
                     lastTouchedRegister = arguments[0]
+                    lastUsedRegisters = [arguments[1], arguments[2]]
                 case "orri":
                     try cpu.orri(arguments[0], arguments[1], parseLiteral(arguments[2]))
                     lastTouchedRegister = arguments[0]
+                    lastUsedRegisters = [arguments[1]]
                 case "eor":
                     try cpu.eor(arguments[0], arguments[1], arguments[2])
                     lastTouchedRegister = arguments[0]
+                    lastUsedRegisters = [arguments[1], arguments[2]]
                 case "eori":
                     try cpu.eori(arguments[0], arguments[1], parseLiteral(arguments[2]))
                     lastTouchedRegister = arguments[0]
+                    lastUsedRegisters = [arguments[1]]
                 case "lsl":
                     try cpu.lsl(arguments[0], arguments[1], parseLiteral(arguments[2]))
                     lastTouchedRegister = arguments[0]
+                    lastUsedRegisters = [arguments[1]]
                 case "lsr":
                     try cpu.lsr(arguments[0], arguments[1], parseLiteral(arguments[2]))
                     lastTouchedRegister = arguments[0]
+                    lastUsedRegisters = [arguments[1]]
                 case "cbz":
                     try cbz(arguments[0], arguments[1])
+                    lastUsedRegisters = [arguments[0]]
                 case "cbnz":
                     try cbnz(arguments[0], arguments[1])
+                    lastUsedRegisters = [arguments[0]]
                 case "b":
                     b(arguments[0])
                 case "b.eq":
@@ -450,17 +481,25 @@ class Interpreter: ObservableObject {
                     b_le(arguments[0])
                 case "br":
                     br(arguments[0])
+                    lastUsedRegisters = [arguments[0]]
                 case "bl":
                     bl(arguments[0])
+                    lastTouchedRegister = "lr"
                 case "mov":
                     try cpu.add(arguments[0], arguments[1], "xzr")
                     lastTouchedRegister = arguments[0]
+                    lastUsedRegisters = [arguments[1]]
                 case "cmp":
                     try cpu.subs("xzr", arguments[0], arguments[1])
+                    lastTouchedRegister = arguments[0]
+                    lastUsedRegisters = [arguments[1], arguments[2]]
                 case "cmpi":
                     try cpu.subis("xzr", arguments[0], parseLiteral(arguments[1]))
+                    lastTouchedRegister = arguments[0]
+                    lastUsedRegisters = [arguments[1]]
                 case "lda":
                     cpu.lda(arguments[0], dataMap[arguments[1]]!)
+                    lastTouchedRegister = arguments[0]
                 case "_long":
                     step(mode: mode)
                 case "_label":

@@ -67,7 +67,7 @@ class CPUModel: ObservableObject {
         "x26": 0,
         "x27": 0,
         "sp": 0x7ffffffff0,
-        "fp": 0,
+        "fp": 0x7ffffffff0,
         "lr": 0,
         "xzr": 0,
     ]
@@ -95,7 +95,7 @@ class CPUModel: ObservableObject {
     
     private func isValidMemoryAddress(_ address: Int64, write: Bool = false) throws {
         if write {
-            guard address >= registers["sp"]! else { throw CPUError.invalidMemoryAccess(address) }
+            guard address >= registers["sp"]! && address <= registers["fp"]! else { throw CPUError.invalidMemoryAccess(address) }
         }
     }
     
@@ -105,7 +105,7 @@ class CPUModel: ObservableObject {
     }
     
     private func setRegister(_ register: String, _ value: Int64) {
-        if register != "xzr" {
+        if !["xzr"].contains(register) {
             registers[register]! = value
         }
     }
@@ -133,7 +133,7 @@ class CPUModel: ObservableObject {
         if (a < 0 && b < 0 && result > 0) || (a > 0 && b > 0 && result < 0) { // signed underflow and overflow
             result = s << 1 + (a % 2) ^ (b % 2)
         } else {
-            result = a + b
+            result = a &+ b
         }
         
         setRegister(destination, result)
@@ -154,7 +154,7 @@ class CPUModel: ObservableObject {
         if (a < 0 && b < 0 && result > 0) || (a > 0 && b > 0 && result < 0) { // signed underflow and overflow
             result = s << 1 + (a % 2) ^ (b % 2)
         } else {
-            result = a + b
+            result = a &+ b
         }
         
         setRegister(destination, result)
@@ -340,6 +340,18 @@ class CPUModel: ObservableObject {
         }
         
         flags = [n, z, c, v]
+        
+        setRegister(destination, result)
+    }
+    
+    func mul(_ destination: String, _ operand1: String, _ operand2: String) throws {
+        touchedFlags = false
+        
+        // arithmetic
+        let a = registers[operand1]!
+        let b = registers[operand2]!
+        
+        let result = a &* b
         
         setRegister(destination, result)
     }

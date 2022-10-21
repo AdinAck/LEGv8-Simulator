@@ -26,6 +26,7 @@
 		40D605CD28E74A2F00654D3C /* FlagView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40D605CC28E74A2F00654D3C /* FlagView.swift */; };
 		40D605CF28E7520500654D3C /* RegisterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40D605CE28E7520500654D3C /* RegisterView.swift */; };
 		40D605D128E7523500654D3C /* MemoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40D605D028E7523500654D3C /* MemoryView.swift */; };
+		40E9FF5B28F8C5DB007DF79D /* SwiftyMonaco in Frameworks */ = {isa = PBXBuildFile; productRef = 40E9FF5A28F8C5DB007DF79D /* SwiftyMonaco */; };
 		40FC5AF628E27F6000532886 /* SwiftyMonaco in Frameworks */ = {isa = PBXBuildFile; productRef = 40FC5AF528E27F6000532886 /* SwiftyMonaco */; };
 /* End PBXBuildFile section */
 
@@ -61,6 +62,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				40FC5AF628E27F6000532886 /* SwiftyMonaco in Frameworks */,
+				40E9FF5B28F8C5DB007DF79D /* SwiftyMonaco in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -194,6 +196,7 @@
 			name = "LEGv8-Simulator";
 			packageProductDependencies = (
 				40FC5AF528E27F6000532886 /* SwiftyMonaco */,
+				40E9FF5A28F8C5DB007DF79D /* SwiftyMonaco */,
 			);
 			productName = "LEGv8-Simulator";
 			productReference = 4043649028E0C4020052F25D /* LEGv8-Simulator.app */;
@@ -224,6 +227,7 @@
 			);
 			mainGroup = 4043648728E0C4020052F25D;
 			packageReferences = (
+				40E9FF5928F8C5DB007DF79D /* XCRemoteSwiftPackageReference "SwiftyMonaco" */,
 			);
 			productRefGroup = 4043649128E0C4020052F25D /* Products */;
 			projectDirPath = "";
@@ -474,7 +478,23 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCRemoteSwiftPackageReference section */
+		40E9FF5928F8C5DB007DF79D /* XCRemoteSwiftPackageReference "SwiftyMonaco" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ICToolkit/SwiftyMonaco";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
+		40E9FF5A28F8C5DB007DF79D /* SwiftyMonaco */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 40E9FF5928F8C5DB007DF79D /* XCRemoteSwiftPackageReference "SwiftyMonaco" */;
+			productName = SwiftyMonaco;
+		};
 		40FC5AF528E27F6000532886 /* SwiftyMonaco */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = SwiftyMonaco;

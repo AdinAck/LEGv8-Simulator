@@ -15,7 +15,7 @@ return {
     'x26', 'x27', 'x28', 'x29',
     'x30', 'xzr', 'ip1', 'ip2',
     'sp', 'fp', 'lr',
-    'add', 'sub', 'addi', 'subi', 'adds', 'subs', 'addis', 'subis', // arithmetic instructions
+    'add', 'sub', 'addi', 'subi', 'adds', 'subs', 'addis', 'subis', 'mul', // arithmetic instructions
     'ldur', 'stur', 'ldursw', 'sturw', 'ldurh', 'sturh', 'ldurb', 'sturb', 'ldxr', 'stxr', 'movz', 'movk', // data transfer
     'and', 'ands', 'orr', 'eor', 'andi', 'andis', 'orri', 'eori', 'lsl', 'lsr', // logical
     'cbz', 'cbnz', 'b', 'br', 'bl', // branching

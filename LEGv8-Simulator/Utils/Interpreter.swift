@@ -123,7 +123,6 @@ class Interpreter: ObservableObject {
     }
     
     private func isValidMarker(_ marker: String) throws {
-        print(dataMap)
         guard dataMap.keys.contains(marker) else { throw AssemblerError.invalidLabel(marker) }
     }
     
@@ -239,8 +238,11 @@ class Interpreter: ObservableObject {
         do {
             let (instruction, arguments) = try lexer.parseNextLine()
             
+            print("[Interpreter] [\(mode)] Instruction: \(instruction), Arguments: \(arguments)")
+            
             if instruction == "_end" {
                 writeToLog("")
+                running = false
             } else if instruction == "_label" {
                 if mode == .running {
                     writeToLog(lexer.lines[lexer.cursor - 1], type: .label)
@@ -248,7 +250,11 @@ class Interpreter: ObservableObject {
                     labelMap[arguments[0]] = lexer.cursor - 1
                 }
             } else if instruction == "_long" {
-                writeToLog(lexer.lines[lexer.cursor - 1], type: .data)
+                if mode == .assembling {
+                    writeToLog(lexer.lines[lexer.cursor - 1], type: .data)
+                } else if mode == .labelling {
+                    dataMap[arguments[0]] = Int64(lexer.cursor) - 1
+                }
             } else {
                 if mode == .running {
                     writeToLog(lexer.lines[lexer.cursor - 1])
@@ -318,11 +324,11 @@ class Interpreter: ObservableObject {
                     try isValidRegister(arguments[0])
                     try isValidRegister(arguments[1])
                 case "cmp":
-                    try verifyArgumentCount(arguments.count, [2])
+                    try verifyArgumentCount(arguments.count, [3])
                     try isValidRegister(arguments[0])
                     try isValidRegister(arguments[1])
                 case "cmpi":
-                    try verifyArgumentCount(arguments.count, [2])
+                    try verifyArgumentCount(arguments.count, [3])
                     try isValidRegister(arguments[0])
                     let _ = try parseLiteral(arguments[1])
                 case "lda":

@@ -23,7 +23,7 @@ struct Memory: Identifiable, Comparable {
     }
 }
 
-class CPUModel: ObservableObject {
+class CPUModel: ObservableObject, CustomStringConvertible {
     /*
      x0-x7:     arguments/results
      x8:        indirect result location register
@@ -83,7 +83,40 @@ class CPUModel: ObservableObject {
     
     @Published var touchedFlags: Bool = false
     
+    public var description: String {
+        var reg: String = ""
+        
+        for register in registers.keys.sorted(by: { lhs, rhs in CPUModel.registerSort(lhs: lhs, rhs: rhs)}) {
+            reg += "\(register): 0x\(String(format: "%llX", registers[register]!))\n"
+        }
+        
+        var mem: String = ""
+        
+        for memory in self.memory.values.sorted() {
+            mem += "0x\(String(format: "%llX", memory.id)): 0x\(String(format: "%llX", memory.value))\n"
+        }
+        
+        return "Registers:\n\(reg)\nMemory:\n\(mem)\nFlags: \(flags)"
+    }
+    
     init() { }
+    
+    public static func registerSort(lhs: String, rhs: String) -> Bool {
+        if lhs == "xzr" {
+            return false
+        } else if rhs == "xzr" {
+            return true
+        } else if lhs.contains("x") && rhs.contains("x") {
+            return Int(lhs[lhs.index(after: lhs.startIndex)...])! < Int(rhs[rhs.index(after: rhs.startIndex)...])!
+        } else if lhs.contains("x") {
+            return true
+        } else if rhs.contains("x") {
+            return false
+        } else {
+            let order = ["sp": 0, "fp": 1, "lr": 2]
+            return order[lhs]! < order[rhs]!
+        }
+    }
     
     private func isValidImmediate(_ literal: Int64) throws {
         guard 0 <= literal && literal <= 0xfff else { throw CPUError.invalidImmediate(String(literal)) }

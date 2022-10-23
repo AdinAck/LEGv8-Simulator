@@ -1,14 +1,16 @@
 {
-  "pins" : [
-    {
-      "identity" : "swiftymonaco",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/ICToolkit/SwiftyMonaco",
-      "state" : {
-        "branch" : "main",
-        "revision" : "715dd8575c33602d3e5041fd2edc1bbe23e12653"
+  "object": {
+    "pins": [
+      {
+        "package": "swift-argument-parser",
+        "repositoryURL": "https://github.com/apple/swift-argument-parser.git",
+        "state": {
+          "branch": null,
+          "revision": "9f39744e025c7d377987f30b03770805dcb0bcd1",
+          "version": "1.1.4"
+        }
       }
-    }
-  ],
-  "version" : 2
+    ]
+  },
+  "version": 1
 }

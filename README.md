@@ -19,11 +19,30 @@ There are three buttons in the top right:
 - Run/Continue - Execute the rest of the instructions (cmd + l)
 - Stop - Reset everything, go back to beginning of program (cmd + j)
 
-Below the text editor, there is a "console" displaying a history of instructions executed, the current line of execution, the program counter and line number values for each instruction, and errors if the occur.
+## Console
+
+Below the text editor, there is a "console" displaying a history of instructions executed, the current line of execution, the program counter and line number values for each instruction, and errors if they occur.
+
+## Indicators
+
+In the **Registers** and **Memory** panes, blue dots indicate the value was changed and purple dots indicate it was read.
+
+In the **Memory** pane, the green dot indicates the position of the stack pointer and the orange dot indicates the position of the frame pointer.
+
+## Preferences
+You can access the preferences window by pressing `cmd + ,`.
+
+Here you can configure some settings (not persistent yet) and view the about page.
+
+# Command Line Utility
+This project also contains a command line utility that executes a selected LEGv8 assembly file and dumps the state of the CPU at the end of the program to the selected file.
+
+The execution of the file is extremely verbose and any assembly or runtime errors are displayed.
 
 # TODO
-- Optimize lexer and improve verbosity
 - Line by line execution in monaco editor (hard)
+- User settings
+- *Build on type* is a bit laggy, perhaps make emulation async
 
 ## Unimplemented instructions
 - LDURSW

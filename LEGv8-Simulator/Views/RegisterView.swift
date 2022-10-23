@@ -28,20 +28,7 @@ struct RegisterView: View {
             
             HStack {
                 let registers: [String] = interpreter.cpu.registers.keys.sorted(by: { lhs, rhs in
-                    if lhs == "xzr" {
-                        return false
-                    } else if rhs == "xzr" {
-                        return true
-                    } else if lhs.contains("x") && rhs.contains("x") {
-                        return Int(lhs[lhs.index(after: lhs.startIndex)...])! < Int(rhs[rhs.index(after: rhs.startIndex)...])!
-                    } else if lhs.contains("x") {
-                        return true
-                    } else if rhs.contains("x") {
-                        return false
-                    } else {
-                        let order = ["sp": 0, "fp": 1, "lr": 2]
-                        return order[lhs]! < order[rhs]!
-                    }
+                    CPUModel.registerSort(lhs: lhs, rhs: rhs)
                 } )
                 List(registers[..<16], id: \.self, selection: $selection1) { name in
                     RegisterRowView(name: name)

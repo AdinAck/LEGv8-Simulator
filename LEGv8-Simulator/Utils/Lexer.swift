@@ -56,6 +56,8 @@ class Lexer: ObservableObject {
                 throw LexerError.invalidDataMarker(marker)
             }
             
+            print("[Lexer] Mode = \(mode)")
+            
             cursor += 1
             return try parseNextLine()
             

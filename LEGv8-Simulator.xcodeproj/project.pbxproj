@@ -47,9 +47,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		403941F12904A63C005403A7 /* Legv8-Simulator-CLI */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "Legv8-Simulator-CLI"; sourceTree = BUILT_PRODUCTS_DIR; };
+		403941F12904A63C005403A7 /* LEGv8-Simulator-CLI */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "LEGv8-Simulator-CLI"; sourceTree = BUILT_PRODUCTS_DIR; };
 		403941F32904A63C005403A7 /* LEGv8_Simulator_CLI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LEGv8_Simulator_CLI.swift; sourceTree = "<group>"; };
-		403941FB2904A8D1005403A7 /* Legv8-Simulator-CLI.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Legv8-Simulator-CLI.entitlements"; sourceTree = "<group>"; };
+		403941FB2904A8D1005403A7 /* LEGv8-Simulator-CLI.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "LEGv8-Simulator-CLI.entitlements"; sourceTree = "<group>"; };
 		403D871728E125AE002E5E4A /* Interpreter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Interpreter.swift; sourceTree = "<group>"; };
 		403D871928E1EF38002E5E4A /* ConsoleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsoleView.swift; sourceTree = "<group>"; };
 		403D871B28E214BD002E5E4A /* ConsoleRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsoleRowView.swift; sourceTree = "<group>"; };
@@ -95,13 +95,13 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		403941F22904A63C005403A7 /* Legv8-Simulator-CLI */ = {
+		403941F22904A63C005403A7 /* LEGv8-Simulator-CLI */ = {
 			isa = PBXGroup;
 			children = (
-				403941FB2904A8D1005403A7 /* Legv8-Simulator-CLI.entitlements */,
+				403941FB2904A8D1005403A7 /* LEGv8-Simulator-CLI.entitlements */,
 				403941F32904A63C005403A7 /* LEGv8_Simulator_CLI.swift */,
 			);
-			path = "Legv8-Simulator-CLI";
+			path = "LEGv8-Simulator-CLI";
 			sourceTree = "<group>";
 		};
 		4043648728E0C4020052F25D = {
@@ -109,7 +109,7 @@
 			children = (
 				40FC14DB28E4E433006A47C6 /* Packages */,
 				4043649228E0C4020052F25D /* LEGv8-Simulator */,
-				403941F22904A63C005403A7 /* Legv8-Simulator-CLI */,
+				403941F22904A63C005403A7 /* LEGv8-Simulator-CLI */,
 				4043649128E0C4020052F25D /* Products */,
 				40FC5AF428E27F6000532886 /* Frameworks */,
 			);
@@ -119,7 +119,7 @@
 			isa = PBXGroup;
 			children = (
 				4043649028E0C4020052F25D /* LEGv8-Simulator.app */,
-				403941F12904A63C005403A7 /* Legv8-Simulator-CLI */,
+				403941F12904A63C005403A7 /* LEGv8-Simulator-CLI */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -218,9 +218,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		403941F02904A63C005403A7 /* Legv8-Simulator-CLI */ = {
+		403941F02904A63C005403A7 /* LEGv8-Simulator-CLI */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 403941F52904A63C005403A7 /* Build configuration list for PBXNativeTarget "Legv8-Simulator-CLI" */;
+			buildConfigurationList = 403941F52904A63C005403A7 /* Build configuration list for PBXNativeTarget "LEGv8-Simulator-CLI" */;
 			buildPhases = (
 				403941ED2904A63C005403A7 /* Sources */,
 				403941EE2904A63C005403A7 /* Frameworks */,
@@ -230,12 +230,12 @@
 			);
 			dependencies = (
 			);
-			name = "Legv8-Simulator-CLI";
+			name = "LEGv8-Simulator-CLI";
 			packageProductDependencies = (
 				403941FE2904BD1A005403A7 /* ArgumentParser */,
 			);
 			productName = "Legv8-Simulator-CLI";
-			productReference = 403941F12904A63C005403A7 /* Legv8-Simulator-CLI */;
+			productReference = 403941F12904A63C005403A7 /* LEGv8-Simulator-CLI */;
 			productType = "com.apple.product-type.tool";
 		};
 		4043648F28E0C4020052F25D /* LEGv8-Simulator */ = {
@@ -293,7 +293,7 @@
 			projectRoot = "";
 			targets = (
 				4043648F28E0C4020052F25D /* LEGv8-Simulator */,
-				403941F02904A63C005403A7 /* Legv8-Simulator-CLI */,
+				403941F02904A63C005403A7 /* LEGv8-Simulator-CLI */,
 			);
 		};
 /* End PBXProject section */
@@ -555,7 +555,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		403941F52904A63C005403A7 /* Build configuration list for PBXNativeTarget "Legv8-Simulator-CLI" */ = {
+		403941F52904A63C005403A7 /* Build configuration list for PBXNativeTarget "LEGv8-Simulator-CLI" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				403941F62904A63C005403A7 /* Debug */,

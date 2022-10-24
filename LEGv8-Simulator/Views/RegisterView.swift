@@ -35,12 +35,16 @@ struct RegisterView: View {
                         .tag(name)
                         .environmentObject(interpreter)
                 }
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .padding()
                 
                 List(registers[16...], id: \.self, selection: $selection2) { name in
                     RegisterRowView(name: name)
                         .tag(name)
                         .environmentObject(interpreter)
                 }
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .padding()
             }
         }
     }

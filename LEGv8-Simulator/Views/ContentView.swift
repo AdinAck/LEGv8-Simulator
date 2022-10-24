@@ -110,9 +110,14 @@ struct ContentView: View {
             }
         }
         .onChange(of: document.text) { newValue in
-            interpreter.running = false
-            interpreter.assembled = false
+            if interpreter.running {
+                interpreter.running = false
+            }
             
+            if interpreter.assembled {
+                interpreter.assembled = false
+            }
+
             if settings.buildOnType {
                 withAnimation {
                     interpreter.assemble(document.text)

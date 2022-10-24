@@ -46,6 +46,7 @@ class Interpreter: ObservableObject {
     @Published var lastUsedMemory: Int64?
     
     @Published var log: [LogEntry] = []
+    @Published var history: History = History()
     
     var labelMap: [String: Int] = [:]
     var dataMap: [String: Int64] = [:]
@@ -82,6 +83,7 @@ class Interpreter: ObservableObject {
         
         programCounter = 0
         log = []
+        history = History()
         dataPointer = 0
         
         running = true
@@ -516,6 +518,48 @@ class Interpreter: ObservableObject {
                     doStop(mode: mode)
                 }
             }
+            
+            // update history
+            for reg in lastUsedRegisters {
+                if let _ = history.registers[reg] {
+                    // nothing to do
+                } else {
+                    history.registers[reg] = [:]
+                }
+                
+                history.registers[reg]![programCounter] = HistoryEntry(id: programCounter, line: lexer.cursor, value: cpu.registers[reg]!, type: .read)
+            }
+            
+            if let reg = lastTouchedRegister {
+                if let _ = history.registers[reg] {
+                    // nothing to do
+                } else {
+                    history.registers[reg] = [:]
+                }
+                
+                history.registers[reg]![programCounter] = HistoryEntry(id: programCounter, line: lexer.cursor, value: cpu.registers[reg]!, type: .write)
+            }
+            
+            if let mem = lastUsedMemory {
+                if let _ = history.memory[mem] {
+                    // nothing to do
+                } else {
+                    history.memory[mem] = [:]
+                }
+                
+                history.memory[mem]![programCounter] = HistoryEntry(id: programCounter, line: lexer.cursor, value: cpu.memory[mem]?.value ?? 0, type: .read)
+            }
+            
+            if let mem = lastTouchedMemory {
+                if let _ = history.memory[mem] {
+                    // nothing to do
+                } else {
+                    history.memory[mem] = [:]
+                }
+                
+                history.memory[mem]![programCounter] = HistoryEntry(id: programCounter, line: lexer.cursor, value: cpu.memory[mem]!.value, type: .write)
+            }
+            
         } catch AssemblerError.invalidInstruction(let instruction) {
             writeToLog("[InvalidInstruction] Invalid instruction \"\(instruction)\".", type: .error)
             doStop(mode: mode)

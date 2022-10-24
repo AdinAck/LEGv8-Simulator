@@ -13,6 +13,7 @@ struct RegisterRowView: View {
     let name: String
     
     @State private var displayMode: String = "H"
+    @State private var isPresented: Bool = false
     
     var body: some View {
         HStack {
@@ -39,7 +40,25 @@ struct RegisterRowView: View {
                 Text(displayMode == "H" ? "0x\(String(format: "%llX", value))" : "\(value)")
                     .font(.custom("Menlo Regular", size: 12))
                     .textSelection(.enabled)
-                    .help("\(value)")
+                
+                Button {
+                    isPresented.toggle()
+                } label: {
+                    Image(systemName: "chart.xyaxis.line")
+                }
+                .buttonStyle(.borderless)
+                .popover(isPresented: $isPresented) {
+                    if let history = interpreter.history.registers[name]?.values.sorted() {
+                        HistoryView(displayMode: displayMode, history: history)
+                            .frame(width: 500, height: 300)
+                            .animation(.default, value: history)
+                    } else {
+                        Image(systemName: "nosign")
+                            .foregroundColor(.secondary)
+                            .padding()
+                            .frame(width: 500, height: 300)
+                    }
+                }
             }
             
             Picker("", selection: $displayMode) {

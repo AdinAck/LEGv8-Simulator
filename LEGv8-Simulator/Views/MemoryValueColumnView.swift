@@ -13,6 +13,7 @@ struct MemoryValueColumnView: View {
     let memory: Memory
     
     @State private var displayMode: String = "H"
+    @State private var isPresented: Bool = false
     
     var body: some View {
         HStack {
@@ -23,6 +24,25 @@ struct MemoryValueColumnView: View {
             }
             .pickerStyle(.segmented)
             .frame(width: 50)
+            
+            Button {
+                isPresented.toggle()
+            } label: {
+                Image(systemName: "chart.xyaxis.line")
+            }
+            .buttonStyle(.borderless)
+            .popover(isPresented: $isPresented) {
+                if let history = interpreter.history.memory[memory.id]?.values.sorted() {
+                    HistoryView(displayMode: displayMode, history: history)
+                        .frame(width: 500, height: 300)
+                        .animation(.default, value: history)
+                } else {
+                    Image(systemName: "nosign")
+                        .foregroundColor(.secondary)
+                        .padding()
+                        .frame(width: 500, height: 300)
+                }
+            }
             
             if interpreter.lastTouchedMemory == memory.id {
                 Image(systemName: "circle.fill")
@@ -39,7 +59,6 @@ struct MemoryValueColumnView: View {
             Text(displayMode == "H" ? "0x\(String(format: "%llX", memory.value))" : "\(memory.value)")
                 .font(.custom("Menlo Regular", size: 12))
                 .textSelection(.enabled)
-                .help("\(memory.value)")
         }
         .animation(.default, value: interpreter.lastTouchedMemory)
         .animation(.default, value: interpreter.cpu.memory)

@@ -324,11 +324,11 @@ class Interpreter: ObservableObject {
                     try isValidRegister(arguments[0])
                     try isValidRegister(arguments[1])
                 case "cmp":
-                    try verifyArgumentCount(arguments.count, [3])
+                    try verifyArgumentCount(arguments.count, [2])
                     try isValidRegister(arguments[0])
                     try isValidRegister(arguments[1])
                 case "cmpi":
-                    try verifyArgumentCount(arguments.count, [3])
+                    try verifyArgumentCount(arguments.count, [2])
                     try isValidRegister(arguments[0])
                     let _ = try parseLiteral(arguments[1])
                 case "lda":
@@ -497,12 +497,10 @@ class Interpreter: ObservableObject {
                     lastUsedRegisters = [arguments[1]]
                 case "cmp":
                     try cpu.subs("xzr", arguments[0], arguments[1])
-                    lastTouchedRegister = arguments[0]
-                    lastUsedRegisters = [arguments[1], arguments[2]]
+                    lastUsedRegisters = [arguments[0], arguments[1]]
                 case "cmpi":
                     try cpu.subis("xzr", arguments[0], parseLiteral(arguments[1]))
-                    lastTouchedRegister = arguments[0]
-                    lastUsedRegisters = [arguments[1]]
+                    lastUsedRegisters = [arguments[0]]
                 case "lda":
                     cpu.lda(arguments[0], dataMap[arguments[1]]!)
                     lastTouchedRegister = arguments[0]
@@ -543,7 +541,7 @@ class Interpreter: ObservableObject {
             writeToLog("[InvalidMemoryAccess] Memory address \"0x\(String(format: "%11X", address))\" is outside stack bounds.", type: .error) // this displays incorrectly - known printf bug
             doStop(mode: mode)
         } catch CPUError.stackPointerMisaligned(let address) {
-            writeToLog("[StackPointerMisaligned] Stack pointer address \"\(address)\" is not quadword aligned.", type: .error)
+            writeToLog("[StackPointerMisaligned] Stack pointer address \"0x\(String(format: "%llX", address))\" is not quadword aligned.", type: .error)
             doStop(mode: mode)
         } catch LexerError.invalidDataMarker(let marker) {
             writeToLog("[InvalidDataMarker] Marker \"\(marker)\" is unrecognized.")

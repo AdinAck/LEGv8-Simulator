@@ -28,6 +28,7 @@
 		4080D12228E3FD9D00DCA947 /* Document.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4080D12128E3FD9D00DCA947 /* Document.swift */; };
 		4080D12728E4081200DCA947 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4080D12628E4081200DCA947 /* SettingsView.swift */; };
 		4080D12B28E40CF400DCA947 /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4080D12A28E40CF400DCA947 /* AboutView.swift */; };
+		4091B65929082B3E00869AC7 /* History.swift in Sources */ = {isa = PBXBuildFile; fileRef = 407923F12906FB63000CA218 /* History.swift */; };
 		4095520828EA6A3300697ED9 /* SettingsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4095520728EA6A3300697ED9 /* SettingsModel.swift */; };
 		4095520A28EC811E00697ED9 /* RegisterRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4095520928EC811E00697ED9 /* RegisterRowView.swift */; };
 		4095520E28ED0F6D00697ED9 /* MemoryValueColumnView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4095520D28ED0F6D00697ED9 /* MemoryValueColumnView.swift */; };
@@ -326,6 +327,7 @@
 				403941F92904A845005403A7 /* Lexer.swift in Sources */,
 				403941FA2904A849005403A7 /* CPUModel.swift in Sources */,
 				403941F42904A63C005403A7 /* LEGv8_Simulator_CLI.swift in Sources */,
+				4091B65929082B3E00869AC7 /* History.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -48,7 +48,7 @@ struct RegisterRowView: View {
                 }
                 .buttonStyle(.borderless)
                 .popover(isPresented: $isPresented) {
-                    if let history = interpreter.history.registers[name]?.values.sorted() {
+                    if let history = interpreter.history.registers[name]?.values.sorted { a, b in a > b } {
                         HistoryView(displayMode: displayMode, history: history)
                             .frame(width: 500, height: 300)
                             .animation(.default, value: history)

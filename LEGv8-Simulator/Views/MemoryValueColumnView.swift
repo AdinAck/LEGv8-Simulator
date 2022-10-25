@@ -32,7 +32,7 @@ struct MemoryValueColumnView: View {
             }
             .buttonStyle(.borderless)
             .popover(isPresented: $isPresented) {
-                if let history = interpreter.history.memory[memory.id]?.values.sorted() {
+                if let history = interpreter.history.memory[memory.id]?.values.sorted { a, b in a > b } {
                     HistoryView(displayMode: displayMode, history: history)
                         .frame(width: 500, height: 300)
                         .animation(.default, value: history)

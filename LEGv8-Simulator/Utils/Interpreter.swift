@@ -84,7 +84,7 @@ class Interpreter: ObservableObject {
         programCounter = 0
         log = []
         history = History()
-        dataPointer = 0
+        dataPointer = 1
         
         running = true
     }
@@ -139,9 +139,10 @@ class Interpreter: ObservableObject {
     }
     
     // loading data
-    private func loadLong(_ number: Int64) {
-        cpu.memory[dataPointer] = Memory(id: dataPointer, value: number)
-        dataPointer += 8 // long is 8 bytes
+    private func loadLong(_ number: Int64, _ label: String, _ offset: Int64) {
+        let address = dataMap[label]! + offset * 8
+        cpu.memory[address] = Memory(id: address, value: number)
+//        dataPointer += 8 // long is 8 bytes
     }
     
     // branching
@@ -255,7 +256,9 @@ class Interpreter: ObservableObject {
                 if mode == .assembling {
                     writeToLog(lexer.lines[lexer.cursor - 1], type: .data)
                 } else if mode == .labelling {
-                    dataMap[arguments[0]] = Int64(lexer.cursor) - 1
+//                    dataMap[arguments[0]] = Int64(lexer.cursor) - 1
+                    dataMap[arguments[0]] = dataPointer
+                    dataPointer += Int64(8 * (arguments.count - 1))
                 }
             } else {
                 if mode == .running {
@@ -338,11 +341,16 @@ class Interpreter: ObservableObject {
                     try isValidRegister(arguments[0])
                     try isValidMarker(arguments[1])
                 case "_long":
-                    dataMap[arguments[0]] = dataPointer
-                    
+                    var i: Int64 = 0
                     for argument in arguments[1...] {
-                        let num = try parseLiteral(argument)
-                        loadLong(num)
+                        var num: Int64 = 0
+                        if argument.contains(where: { char in char.isLetter}) {
+                            num = dataMap[argument]!
+                        } else {
+                            num = try parseLiteral(argument)
+                        }
+                        loadLong(num, arguments[0], i)
+                        i += 1
                     }
                     
                     step(mode: mode)
@@ -588,7 +596,7 @@ class Interpreter: ObservableObject {
             writeToLog("[StackPointerMisaligned] Stack pointer address \"0x\(String(format: "%llX", address))\" is not quadword aligned.", type: .error)
             doStop(mode: mode)
         } catch LexerError.invalidDataMarker(let marker) {
-            writeToLog("[InvalidDataMarker] Marker \"\(marker)\" is unrecognized.")
+            writeToLog("[InvalidDataMarker] Marker \"\(marker)\" is unrecognized.", type: .error)
             doStop(mode: mode)
         } catch {
             writeToLog("Unknown error.", type: .error)

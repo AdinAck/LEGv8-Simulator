@@ -128,7 +128,7 @@ class CPUModel: ObservableObject, CustomStringConvertible {
     
     private func isValidMemoryAddress(_ address: Int64, write: Bool = false) throws {
         if write {
-            guard address >= registers["sp"]! && address <= registers["fp"]! else { throw CPUError.invalidMemoryAccess(address) }
+            guard address <= registers["fp"]! else { throw CPUError.invalidMemoryAccess(address) }
         }
     }
     

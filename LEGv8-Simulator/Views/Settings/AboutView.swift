@@ -17,7 +17,7 @@ struct AboutView: View {
                 .aspectRatio(contentMode: .fit)
             
             VStack(alignment: .leading) {
-                Text("Legv8 Simulator")
+                Text("LEGv8 Simulator")
                     .font(.title)
                 Text("Created by Adin Ackerman")
                     .font(.caption)

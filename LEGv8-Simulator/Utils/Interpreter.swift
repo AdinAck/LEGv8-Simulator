@@ -51,7 +51,7 @@ class Interpreter: ObservableObject {
     var labelMap: [String: Int] = [:]
     var dataMap: [String: Int64] = [:]
     
-    private var dataPointer: Int64 = 0
+    private var dataPointer: Int64 = 1
     
     func buildLabelMap(_ text: String) {
         start(text)

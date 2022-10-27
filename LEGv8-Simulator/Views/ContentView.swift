@@ -72,6 +72,7 @@ struct ContentView: View {
                     withAnimation {
                         if !interpreter.running {
                             interpreter.start(document.text)
+                            interpreter.goToEntryPoint()
                         }
                         interpreter.step(mode: .running)
                     }
@@ -85,6 +86,7 @@ struct ContentView: View {
                 Button {
                     withAnimation {
                         interpreter.start(document.text)
+                        interpreter.goToEntryPoint()
                         
                         while interpreter.running {
                             interpreter.step(mode: .running)

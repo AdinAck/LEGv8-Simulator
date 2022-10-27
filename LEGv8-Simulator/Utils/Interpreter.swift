@@ -53,6 +53,11 @@ class Interpreter: ObservableObject {
     
     private var dataPointer: Int64 = 1
     
+    func goToEntryPoint() {
+        
+        lexer.cursor = labelMap["main"]!
+    }
+    
     func buildLabelMap(_ text: String) {
         start(text)
         
@@ -62,12 +67,20 @@ class Interpreter: ObservableObject {
     }
     
     func assemble(_ text: String) {
+        error = false
+        
         buildLabelMap(text)
+        print("labelMap: \(labelMap)")
+        if !labelMap.keys.contains("main") { // no entry point
+            writeToLog("[NoEntryPoint] There must be one \"main\" label to designate the program entry point.", type: .error)
+            error = true
+        }
+        
+        guard !error else { return }
+        
         start(text)
         
         cpu = CPUModel()
-        
-        error = false
         while running {
             step(mode: .assembling)
         }

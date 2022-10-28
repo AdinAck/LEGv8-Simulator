@@ -48,13 +48,16 @@ class Interpreter: ObservableObject {
     @Published var log: [LogEntry] = []
     @Published var history: History = History()
     
+    @Published var breakPoints: [Int] = []
+    @Published var steppingOver: Bool = false
+    @Published var stepOverAddress: Int64 = 0
+    
     var labelMap: [String: Int] = [:]
     var dataMap: [String: Int64] = [:]
     
     private var dataPointer: Int64 = 1
     
     func goToEntryPoint() {
-        
         lexer.cursor = labelMap["main"]!
     }
     
@@ -236,7 +239,11 @@ class Interpreter: ObservableObject {
     }
     
     func br(_ register: String) {
-        lexer.cursor = Int(cpu.registers[register]!) / 4
+        let address = cpu.registers[register]!
+        lexer.cursor = Int(address) / 4
+        if address == stepOverAddress {
+            steppingOver = false
+        }
     }
     
     func bl(_ label: String) {
@@ -269,7 +276,6 @@ class Interpreter: ObservableObject {
                 if mode == .assembling {
                     writeToLog(lexer.lines[lexer.cursor - 1], type: .data)
                 } else if mode == .labelling {
-//                    dataMap[arguments[0]] = Int64(lexer.cursor) - 1
                     dataMap[arguments[0]] = dataPointer
                     dataPointer += Int64(8 * (arguments.count - 1))
                 }
@@ -618,5 +624,29 @@ class Interpreter: ObservableObject {
         
         cpu.updateStackPointer()
         objectWillChange.send()
+    }
+    
+    func run() {
+        while running {
+            step(mode: .running)
+            
+            print(lexer.cursor)
+            
+            if breakPoints.contains(log.last!.line) {
+                print("Breakpoint: \(programCounter)")
+                return
+            }
+        }
+    }
+    
+    func stepOver() {
+        steppingOver = true
+        stepOverAddress = Int64(log.last!.line) * 4
+        
+        while running && steppingOver {
+            step(mode: .running)
+        }
+        
+        step(mode: .running)
     }
 }

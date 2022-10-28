@@ -85,15 +85,15 @@ struct ContentView: View {
             
                 Button {
                     withAnimation {
-                        interpreter.start(document.text)
-                        interpreter.goToEntryPoint()
-                        
-                        while interpreter.running {
-                            interpreter.step(mode: .running)
+                        if !interpreter.running {
+                            interpreter.start(document.text)
+                            interpreter.goToEntryPoint()
                         }
+                        
+                        interpreter.run()
                     }
                 } label: {
-                    Image(systemName: "play.fill")
+                    Image(systemName: "forward.frame.fill")
                 }
                 .disabled(!interpreter.assembled)
                 .keyboardShortcut("l")

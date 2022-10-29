@@ -100,6 +100,25 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		402265AB290DE70F00CABE58 /* Registers */ = {
+			isa = PBXGroup;
+			children = (
+				40D605CE28E7520500654D3C /* RegisterView.swift */,
+				4095520928EC811E00697ED9 /* RegisterRowView.swift */,
+				40D605CC28E74A2F00654D3C /* FlagView.swift */,
+			);
+			path = Registers;
+			sourceTree = "<group>";
+		};
+		402265AC290DE71800CABE58 /* Memory */ = {
+			isa = PBXGroup;
+			children = (
+				40D605D028E7523500654D3C /* MemoryView.swift */,
+				4095520D28ED0F6D00697ED9 /* MemoryValueColumnView.swift */,
+			);
+			path = Memory;
+			sourceTree = "<group>";
+		};
 		403941F22904A63C005403A7 /* LEGv8-Simulator-CLI */ = {
 			isa = PBXGroup;
 			children = (
@@ -168,12 +187,9 @@
 			isa = PBXGroup;
 			children = (
 				4043649528E0C4020052F25D /* ContentView.swift */,
-				40D605D028E7523500654D3C /* MemoryView.swift */,
-				4095520D28ED0F6D00697ED9 /* MemoryValueColumnView.swift */,
 				407923F329071E06000CA218 /* HistoryView.swift */,
-				40D605CE28E7520500654D3C /* RegisterView.swift */,
-				4095520928EC811E00697ED9 /* RegisterRowView.swift */,
-				40D605CC28E74A2F00654D3C /* FlagView.swift */,
+				402265AB290DE70F00CABE58 /* Registers */,
+				402265AC290DE71800CABE58 /* Memory */,
 				4080D12928E40CAD00DCA947 /* Console */,
 				4080D12828E40CA500DCA947 /* Settings */,
 			);
@@ -513,6 +529,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "LEGv8-Simulator/Info.plist";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -545,6 +562,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "LEGv8-Simulator/Info.plist";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

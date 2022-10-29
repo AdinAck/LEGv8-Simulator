@@ -41,7 +41,6 @@ The execution of the file is extremely verbose and any assembly or runtime error
 
 # TODO
 - Line by line execution in monaco editor (hard)
-- User settings
 - *Build on type* is a bit laggy, perhaps make emulation async
 
 ## Unimplemented instructions

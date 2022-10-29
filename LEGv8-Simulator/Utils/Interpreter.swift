@@ -40,6 +40,7 @@ class Interpreter: ObservableObject {
     @Published var programCounter: Int = 0
     var executionLimit: Int = 0
     
+    @Published var lastInstruction: String = ""
     @Published var lastTouchedRegister: String?
     @Published var lastTouchedMemory: Int64?
     @Published var lastUsedRegisters: [String] = []
@@ -55,7 +56,7 @@ class Interpreter: ObservableObject {
     var labelMap: [String: Int] = [:]
     var dataMap: [String: Int64] = [:]
     
-    private var dataPointer: Int64 = 1
+    private var dataPointer: Int64 = 0
     
     func goToEntryPoint() {
         lexer.cursor = labelMap["main"]!
@@ -100,7 +101,7 @@ class Interpreter: ObservableObject {
         programCounter = 0
         log = []
         history = History()
-        dataPointer = 1
+        dataPointer = 0
         
         running = true
     }
@@ -158,7 +159,6 @@ class Interpreter: ObservableObject {
     private func loadLong(_ number: Int64, _ label: String, _ offset: Int64) {
         let address = dataMap[label]! + offset * 8
         cpu.memory[address] = Memory(id: address, value: number)
-//        dataPointer += 8 // long is 8 bytes
     }
     
     // branching
@@ -260,6 +260,7 @@ class Interpreter: ObservableObject {
         
         do {
             let (instruction, arguments) = try lexer.parseNextLine()
+            lastInstruction = instruction
             
             print("[Interpreter] [\(mode)] Instruction: \(instruction), Arguments: \(arguments)")
             

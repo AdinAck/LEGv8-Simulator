@@ -44,6 +44,7 @@ struct ConsoleView: View {
                 .padding(.leading, 8)
                 .padding(.top, 8)
                 .help("Step over")
+                .disabled(interpreter.lastInstruction != "bl")
                 
                 Spacer()
             }

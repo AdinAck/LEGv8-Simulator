@@ -11,6 +11,9 @@ struct SettingsView: View {
     @EnvironmentObject var model: SettingsModel
     @State var execLimitString: String = ""
     
+    @AppStorage("executionLimit") var executionLimit: Int = 1000
+    @AppStorage("buildOnType") var buildOnType: Bool = false
+    
     var body: some View {
         TabView() {
             List {
@@ -22,12 +25,12 @@ struct SettingsView: View {
                         .frame(width: 100)
                         .onChange(of: execLimitString) { newValue in
                             if let val = Int(newValue) {
-                                model.executionLimit = val
+                                executionLimit = val
                             }
                         }
                 }
                 
-                Toggle("Build on type", isOn: $model.buildOnType)
+                Toggle("Build on type", isOn: $buildOnType)
                     .toggleStyle(.switch)
             }
             .frame(width: 400, height: 400)
@@ -35,7 +38,15 @@ struct SettingsView: View {
                 Label("Settings", systemImage: "gear")
             }
             .onAppear {
-                execLimitString = String(model.executionLimit)
+                execLimitString = String(executionLimit)
+                model.executionLimit = executionLimit
+                model.buildOnType = buildOnType
+            }
+            .onChange(of: executionLimit) { newValue in
+                model.executionLimit = executionLimit
+            }
+            .onChange(of: buildOnType) { newValue in
+                model.buildOnType = buildOnType
             }
             
             AboutView()

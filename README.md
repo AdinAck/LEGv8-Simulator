@@ -32,7 +32,7 @@ In the **Memory** pane, the green dot indicates the position of the stack pointe
 ## Preferences
 You can access the preferences window by pressing `cmd + ,`.
 
-Here you can configure some settings (not persistent yet) and view the about page.
+Here you can configure some settings and view the about page.
 
 # Command Line Utility
 This project also contains a command line utility that executes a selected LEGv8 assembly file and dumps the state of the CPU at the end of the program to the selected file.

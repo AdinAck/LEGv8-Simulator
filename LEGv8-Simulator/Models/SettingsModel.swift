@@ -6,10 +6,11 @@
 //
 
 import Foundation
+import SwiftUI
 
 class SettingsModel: ObservableObject, Equatable {
-    @Published var executionLimit: Int = 1000
-    @Published var buildOnType: Bool = false
+    @AppStorage("executionLimit") var executionLimit: Int = 1000
+    @AppStorage("buildOnType") var buildOnType: Bool = false
     
     static func == (lhs: SettingsModel, rhs: SettingsModel) -> Bool {
         lhs.executionLimit == rhs.executionLimit && lhs.buildOnType == rhs.buildOnType

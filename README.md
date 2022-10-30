@@ -17,7 +17,7 @@ There are three buttons in the top right:
 - Assemble - Assemble the code for execution (cmd + b)
 - Step - Execute the next instruction (cmd + k)
 - Run/Continue - Execute the rest of the instructions (cmd + l)
-- Stop - Reset everything, go back to beginning of program (cmd + j)
+- Stop - Go back to beginning of program (cmd + j)
 
 ## Console
 

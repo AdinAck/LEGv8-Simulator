@@ -29,6 +29,14 @@ In the **Registers** and **Memory** panes, blue dots indicate the value was chan
 
 In the **Memory** pane, the green dot indicates the position of the stack pointer and the orange dot indicates the position of the frame pointer.
 
+## Debugging
+
+Just above the console, there are two buttons: *breakpoints* and *step over*.
+
+The breakpoints button lets you type in which lines you would like the execution to pause on.
+
+The step over button is only active when the execution cursor is on a `bl` instruction. If you press it, it will execute until the cursor is at the next line (i.e. the function returns).
+
 ## Preferences
 You can access the preferences window by pressing `cmd + ,`.
 

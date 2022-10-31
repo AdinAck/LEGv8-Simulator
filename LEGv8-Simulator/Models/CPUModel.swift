@@ -80,6 +80,7 @@ class CPUModel: ObservableObject, CustomStringConvertible {
      */
     @Published var flags: [Bool] = [false, false, false, false]
     @Published var memory: [Int64: Memory] = [:]
+    @Published var heapPointer: Int64 = 0
     
     @Published var touchedFlags: Bool = false
     
@@ -128,7 +129,7 @@ class CPUModel: ObservableObject, CustomStringConvertible {
     
     private func isValidMemoryAddress(_ address: Int64, write: Bool = false) throws {
         if write {
-            guard address <= registers["fp"]! else { throw CPUError.invalidMemoryAccess(address) }
+            guard (address >= registers["sp"]! && address <= registers["fp"]!) || address <= heapPointer else { throw CPUError.invalidMemoryAccess(address) }
         }
     }
     

@@ -56,8 +56,6 @@ class Interpreter: ObservableObject {
     var labelMap: [String: Int] = [:]
     var dataMap: [String: Int64] = [:]
     
-    private var dataPointer: Int64 = 0
-    
     func goToEntryPoint() {
         lexer.cursor = labelMap["main"]!
     }
@@ -72,6 +70,7 @@ class Interpreter: ObservableObject {
     
     func assemble(_ text: String) {
         error = false
+        cpu.heapPointer = 0
         
         buildLabelMap(text)
         print("labelMap: \(labelMap)")
@@ -84,7 +83,9 @@ class Interpreter: ObservableObject {
         
         start(text)
         
+        let heapPointer = cpu.heapPointer
         cpu = CPUModel()
+        cpu.heapPointer = heapPointer
         while running {
             step(mode: .assembling)
         }
@@ -101,7 +102,6 @@ class Interpreter: ObservableObject {
         programCounter = 0
         log = []
         history = History()
-        dataPointer = 0
         
         running = true
     }
@@ -277,8 +277,8 @@ class Interpreter: ObservableObject {
                 if mode == .assembling {
                     writeToLog(lexer.lines[lexer.cursor - 1], type: .data)
                 } else if mode == .labelling {
-                    dataMap[arguments[0]] = dataPointer
-                    dataPointer += Int64(8 * (arguments.count - 1))
+                    dataMap[arguments[0]] = cpu.heapPointer
+                    cpu.heapPointer += Int64(8 * (arguments.count - 1))
                 }
             } else {
                 if mode == .running {
@@ -610,7 +610,7 @@ class Interpreter: ObservableObject {
             writeToLog("[InvalidLiteral] Invalid literal value \"\(literal)\". Index values may range between -256 and 255 inclusive.", type: .error)
             doStop(mode: mode)
         } catch CPUError.invalidMemoryAccess(let address) {
-            writeToLog("[InvalidMemoryAccess] Memory address \"0x\(String(format: "%11X", address))\" is outside stack bounds.", type: .error) // this displays incorrectly - known printf bug
+            writeToLog("[InvalidMemoryAccess] Memory address \"0x\(String(format: "%llX", address))\" is outside stack bounds.", type: .error)
             doStop(mode: mode)
         } catch CPUError.stackPointerMisaligned(let address) {
             writeToLog("[StackPointerMisaligned] Stack pointer address \"0x\(String(format: "%llX", address))\" is not quadword aligned.", type: .error)
@@ -631,10 +631,7 @@ class Interpreter: ObservableObject {
         while running {
             step(mode: .running)
             
-            print(lexer.cursor)
-            
             if breakPoints.contains(log.last!.line) {
-                print("Breakpoint: \(programCounter)")
                 return
             }
         }

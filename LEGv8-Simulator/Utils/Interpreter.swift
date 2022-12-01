@@ -45,6 +45,7 @@ class Interpreter: ObservableObject {
     @Published var lastTouchedMemory: Int64?
     @Published var lastUsedRegisters: [String] = []
     @Published var lastUsedMemory: Int64?
+    @Published var usedFlags: Bool = false
     
     @Published var log: [LogEntry] = []
     @Published var history: History = History()
@@ -292,6 +293,7 @@ class Interpreter: ObservableObject {
             lastUsedRegisters = []
             lastUsedMemory = nil
             cpu.touchedFlags = false
+            usedFlags = false
             
             if mode == .assembling {
                 // assembly
@@ -497,24 +499,34 @@ class Interpreter: ObservableObject {
                     b(arguments[0])
                 case "b.eq":
                     b_eq(arguments[0])
+                    usedFlags = true
                 case "b.ne":
                     b_ne(arguments[0])
+                    usedFlags = true
                 case "b.hs":
                     b_hs(arguments[0])
+                    usedFlags = true
                 case "b.lo":
                     b_lo(arguments[0])
+                    usedFlags = true
                 case "b.hi":
                     b_hi(arguments[0])
+                    usedFlags = true
                 case "b.ls":
                     b_ls(arguments[0])
+                    usedFlags = true
                 case "b.ge":
                     b_ge(arguments[0])
+                    usedFlags = true
                 case "b.lt":
                     b_lt(arguments[0])
+                    usedFlags = true
                 case "b.gt":
                     b_gt(arguments[0])
+                    usedFlags = true
                 case "b.le":
                     b_le(arguments[0])
+                    usedFlags = true
                 case "br":
                     br(arguments[0])
                     lastUsedRegisters = [arguments[0]]

@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct AboutView: View {
-    let version: String = "0.1.7 (Beta)"
+    let version: String = "0.1.8 (Beta)"
     
     var body: some View {
         HStack {

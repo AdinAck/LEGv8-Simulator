@@ -28,7 +28,7 @@ struct FlagView: View {
                 }
             }
             .frame(maxWidth: 300)
-            .background(RoundedRectangle(cornerRadius: 8).fill(interpreter.cpu.touchedFlags ? Color.blue : Color.black.opacity(0.2)))
+            .background(RoundedRectangle(cornerRadius: 8).fill(interpreter.cpu.touchedFlags ? Color.blue : interpreter.usedFlags ? Color.purple :  Color.black.opacity(0.2)))
         }
     }
 }

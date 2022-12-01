@@ -100,8 +100,6 @@ class CPUModel: ObservableObject, CustomStringConvertible {
         return "Registers:\n\(reg)\nMemory:\n\(mem)\nFlags: \(flags)"
     }
     
-    init() { }
-    
     public static func registerSort(lhs: String, rhs: String) -> Bool {
         if lhs == "xzr" {
             return false

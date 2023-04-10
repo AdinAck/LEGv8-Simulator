@@ -9,16 +9,12 @@ import SwiftUI
 
 struct MemoryValueColumnView: View {
     @EnvironmentObject var interpreter: Interpreter
-    
-    let memory: Memory
-    
-    @State private var displayMode: String = "H"
+    @EnvironmentObject var memory: Memory
     @State private var isPresented: Bool = false
     
     var body: some View {
         HStack {
-            
-            Picker("", selection: $displayMode) {
+            Picker("", selection: $memory.displayMode) {
                 Text("H").tag("H")
                 Text("D").tag("D")
             }
@@ -32,8 +28,8 @@ struct MemoryValueColumnView: View {
             }
             .buttonStyle(.borderless)
             .popover(isPresented: $isPresented) {
-                if let history = interpreter.history.memory[memory.id]?.values.sorted { a, b in a > b } {
-                    HistoryView(displayMode: displayMode, history: history)
+                if let history = interpreter.history.memory[memory.id]?.values.sorted(by: { a, b in a > b }) {
+                    HistoryView(displayMode: memory.displayMode, history: history)
                         .frame(width: 500, height: 300)
                         .animation(.default, value: history)
                 } else {
@@ -56,9 +52,10 @@ struct MemoryValueColumnView: View {
                     .foregroundColor(.purple)
             }
             
-            Text(displayMode == "H" ? "0x\(String(format: "%llX", memory.value))" : "\(memory.value)")
+            Text(memory.displayMode == "H" ? "0x\(String(format: "%llX", memory.value))" : "\(memory.value)")
                 .font(.custom("Menlo Regular", size: 12))
                 .textSelection(.enabled)
+                .animation(.none, value: memory.value)
         }
         .animation(.default, value: interpreter.lastTouchedMemory)
         .animation(.default, value: interpreter.cpu.memory)

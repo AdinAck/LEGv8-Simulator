@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		40114C7529E46D3C00D6DFA9 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40114C7429E46D3C00D6DFA9 /* Utils.swift */; };
+		40114C7629E46D3C00D6DFA9 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40114C7429E46D3C00D6DFA9 /* Utils.swift */; };
+		40114C7829E4700300D6DFA9 /* InspectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40114C7729E4700300D6DFA9 /* InspectorView.swift */; };
 		403941EC2904A55E005403A7 /* SwiftyMonaco in Frameworks */ = {isa = PBXBuildFile; productRef = 403941EB2904A55E005403A7 /* SwiftyMonaco */; };
 		403941F42904A63C005403A7 /* LEGv8_Simulator_CLI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 403941F32904A63C005403A7 /* LEGv8_Simulator_CLI.swift */; };
 		403941F82904A787005403A7 /* Interpreter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 403D871728E125AE002E5E4A /* Interpreter.swift */; };
@@ -50,6 +53,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		40114C7429E46D3C00D6DFA9 /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
+		40114C7729E4700300D6DFA9 /* InspectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InspectorView.swift; sourceTree = "<group>"; };
 		403941F12904A63C005403A7 /* LEGv8-Simulator-CLI */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "LEGv8-Simulator-CLI"; sourceTree = BUILT_PRODUCTS_DIR; };
 		403941F32904A63C005403A7 /* LEGv8_Simulator_CLI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LEGv8_Simulator_CLI.swift; sourceTree = "<group>"; };
 		403941FB2904A8D1005403A7 /* LEGv8-Simulator-CLI.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "LEGv8-Simulator-CLI.entitlements"; sourceTree = "<group>"; };
@@ -115,6 +120,7 @@
 			children = (
 				40D605D028E7523500654D3C /* MemoryView.swift */,
 				4095520D28ED0F6D00697ED9 /* MemoryValueColumnView.swift */,
+				40114C7729E4700300D6DFA9 /* InspectorView.swift */,
 			);
 			path = Memory;
 			sourceTree = "<group>";
@@ -201,6 +207,7 @@
 			children = (
 				404364AF28E0DDE70052F25D /* Lexer.swift */,
 				403D871728E125AE002E5E4A /* Interpreter.swift */,
+				40114C7429E46D3C00D6DFA9 /* Utils.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -344,6 +351,7 @@
 				403941FA2904A849005403A7 /* CPUModel.swift in Sources */,
 				403941F42904A63C005403A7 /* LEGv8_Simulator_CLI.swift in Sources */,
 				4091B65929082B3E00869AC7 /* History.swift in Sources */,
+				40114C7629E46D3C00D6DFA9 /* Utils.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -359,6 +367,7 @@
 				4080D12B28E40CF400DCA947 /* AboutView.swift in Sources */,
 				4095520E28ED0F6D00697ED9 /* MemoryValueColumnView.swift in Sources */,
 				407923F429071E06000CA218 /* HistoryView.swift in Sources */,
+				40114C7829E4700300D6DFA9 /* InspectorView.swift in Sources */,
 				404364B028E0DDE70052F25D /* Lexer.swift in Sources */,
 				40D605CD28E74A2F00654D3C /* FlagView.swift in Sources */,
 				404364AA28E0DD620052F25D /* CPUModel.swift in Sources */,
@@ -368,6 +377,7 @@
 				4095520A28EC811E00697ED9 /* RegisterRowView.swift in Sources */,
 				40D605D128E7523500654D3C /* MemoryView.swift in Sources */,
 				4095520828EA6A3300697ED9 /* SettingsModel.swift in Sources */,
+				40114C7529E46D3C00D6DFA9 /* Utils.swift in Sources */,
 				403D871828E125AE002E5E4A /* Interpreter.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -535,6 +545,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "AdinAck.LEGv8-Simulator";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -568,6 +579,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "AdinAck.LEGv8-Simulator";
 				PRODUCT_NAME = "$(TARGET_NAME)";

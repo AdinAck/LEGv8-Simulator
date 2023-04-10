@@ -10,7 +10,8 @@ import SwiftUI
 struct MemoryView: View {
     @EnvironmentObject var interpreter: Interpreter
     
-    @State private var selection: Int64?
+    @State private var selection: Set<Memory.ID> = Set()
+    @State private var presentInspector: Bool = false
     
     var body: some View {
         VStack {
@@ -56,9 +57,33 @@ struct MemoryView: View {
                 }
                 
                 TableColumn("Value") { memory in
-                    MemoryValueColumnView(memory: memory)
+                    MemoryValueColumnView()
                         .environmentObject(interpreter)
+                        .environmentObject(memory)
                 }
+            }
+            .contextMenu {
+                Menu("Display Mode") {
+                    Button("Hex") {
+                        for memID in selection {
+                            interpreter.cpu.memory[memID]?.displayMode = "H"
+                        }
+                    }
+                    
+                    Button("Dec") {
+                        for memID in selection {
+                            interpreter.cpu.memory[memID]?.displayMode = "D"
+                        }
+                    }
+                }
+                
+                Button("Inspector") {
+                    presentInspector.toggle()
+                }
+            }
+            .sheet(isPresented: $presentInspector) {
+                InspectorView(memories: selection)
+                    .environmentObject(interpreter)
             }
         }
     }

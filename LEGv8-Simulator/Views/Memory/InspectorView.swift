@@ -16,6 +16,7 @@ struct InspectorView: View {
     let memories: Set<Memory.ID>
     @State private var selection: Set<Memory.ID> = Set()
     @State private var selectedEntry: HistoryEntry?
+    @State private var hoverPosition: Charts.AnnotationPosition = .trailing
     
     private func nearest(_ position: ChartPoint) -> HistoryEntry? {
         var nearest: HistoryEntry? = nil
@@ -69,12 +70,12 @@ struct InspectorView: View {
                     if let selectedEntry {
                         PointMark(x: .value("Program Counter", selectedEntry.id), y: .value("Memory Value", selectedEntry.value))
                             .foregroundStyle(.clear)
-                            .annotation(position: .trailing, alignment: .center, spacing: 0) {
+                            .annotation(position: hoverPosition, alignment: .center, spacing: 0) {
                                 VStack(alignment: .leading) {
                                     Text("PC: 0x\(String(format: "%llX", selectedEntry.id))")
-                                    Text("Line: \(selectedEntry.line)")
                                     Text("Value: 0x\(String(format: "%llX", selectedEntry.value))")
                                     Text("Access: \(selectedEntry.type == .read ? "Read" : "Write")")
+                                    Text("\(selectedEntry.line): \(interpreter.lexer.lines[selectedEntry.line - 1])")
                                 }
                                 .padding()
                                 .background(RoundedRectangle(cornerRadius: 8).fill(.thinMaterial))
@@ -89,6 +90,7 @@ struct InspectorView: View {
                                 switch hoverPhase {
                                 case .active(let hoverLocation):
                                     if let pos: ChartPoint = chartProxy.value(at: hoverLocation) {
+                                        hoverPosition = hoverLocation.x < chartProxy.plotAreaSize.width / 2 ? .trailing : .leading
                                         selectedEntry = nearest(pos)
                                     }
                                 case .ended:

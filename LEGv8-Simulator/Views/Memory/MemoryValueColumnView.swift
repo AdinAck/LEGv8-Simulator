@@ -9,17 +9,17 @@ import SwiftUI
 
 struct MemoryValueColumnView: View {
     @EnvironmentObject var interpreter: Interpreter
-    @EnvironmentObject var memory: Memory
+    let memory: Memory
     @State private var isPresented: Bool = false
     
     var body: some View {
         HStack {
-            Picker("", selection: $memory.displayMode) {
-                Text("H").tag("H")
-                Text("D").tag("D")
-            }
-            .pickerStyle(.segmented)
-            .frame(width: 50)
+//            Picker("", selection: $memory.displayMode) {
+//                Text("H").tag("H")
+//                Text("D").tag("D")
+//            }
+//            .pickerStyle(.segmented)
+//            .frame(width: 50)
             
             Button {
                 isPresented.toggle()

@@ -33,10 +33,9 @@ struct LEGv8SimulatorCLI: ParsableCommand {
             if interpreter.assembled {
 
                 interpreter.start(text)
+                interpreter.goToEntryPoint()
 
-                while interpreter.running {
-                    interpreter.step(mode: .running)
-                }
+                interpreter.run()
 
                 try "\(interpreter.cpu)".write(to: URL(fileURLWithPath: path_out), atomically: true, encoding: .utf8)
             } else {

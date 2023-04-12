@@ -57,9 +57,8 @@ struct MemoryView: View {
                 }
                 
                 TableColumn("Value") { memory in
-                    MemoryValueColumnView()
+                    MemoryValueColumnView(memory: memory)
                         .environmentObject(interpreter)
-                        .environmentObject(memory)
                 }
             }
             .contextMenu {

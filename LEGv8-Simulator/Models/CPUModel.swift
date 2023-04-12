@@ -14,22 +14,13 @@ enum CPUError: Error {
     case stackPointerMisaligned(_ address: Int64)
 }
 
-class Memory: ObservableObject, Identifiable, Comparable {
+struct Memory: Identifiable, Comparable {
     let id: Int64
-    @Published var value: Int64
-    @Published var displayMode: String = "H"
+    var value: Int64
+    var displayMode: String = "H"
     
     static func < (lhs: Memory, rhs: Memory) -> Bool {
         return lhs.id < rhs.id
-    }
-    
-    static func == (lhs: Memory, rhs: Memory) -> Bool {
-        return lhs.id == rhs.id
-    }
-    
-    init(id: Int64, value: Int64) {
-        self.id = id
-        self.value = value
     }
 }
 

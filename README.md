@@ -29,6 +29,12 @@ In the **Registers** and **Memory** panes, blue dots indicate the value was chan
 
 In the **Memory** pane, the green dot indicates the position of the stack pointer and the orange dot indicates the position of the frame pointer.
 
+## Inspector
+
+In the **Memory** pane, you can select memory addresses and open the inspector to view the values of the memory addresses and how they compare and change as the program executes.
+
+![](inspector.png)
+
 ## Debugging
 
 Just above the console, there are two buttons: *breakpoints* and *step over*.

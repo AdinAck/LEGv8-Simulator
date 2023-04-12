@@ -60,6 +60,9 @@ struct InspectorView: View {
                         if let history = interpreter.history.memory[memID]?.values.sorted(by: <) {
                             ForEach(history) { snapshot in
                                 LineMark(x: .value("Program Counter", snapshot.id), y: .value("Memory Value", snapshot.value))
+                                    .interpolationMethod(.stepEnd)
+                                    .lineStyle(StrokeStyle(dash: [2, 4]))
+                                    .opacity(0.5)
                                 PointMark(x: .value("Program Counter", snapshot.id), y: .value("Memory Value", snapshot.value))
                                     .foregroundStyle(snapshot.type == .read ? .purple : .blue)
                             }
@@ -69,7 +72,7 @@ struct InspectorView: View {
                     
                     if let selectedEntry {
                         PointMark(x: .value("Program Counter", selectedEntry.id), y: .value("Memory Value", selectedEntry.value))
-                            .foregroundStyle(.clear)
+                            .foregroundStyle(.white.blendMode(.overlay))
                             .annotation(position: hoverPosition, alignment: .center, spacing: 0) {
                                 VStack(alignment: .leading) {
                                     Text("PC: 0x\(String(format: "%llX", selectedEntry.id))")

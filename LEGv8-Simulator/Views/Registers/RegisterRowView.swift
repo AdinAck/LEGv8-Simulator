@@ -14,11 +14,23 @@ struct RegisterRowView: View {
     
     @State private var displayMode: String = "H"
     @State private var isPresented: Bool = false
+    @State private var note: String = ""
+    @State private var noteVisisble: Bool = false
     
     var body: some View {
         HStack {
             Text(name)
                 .font(.custom("Menlo Regular", size: 12))
+            
+            TextField("Note...", text: $note)
+                .opacity(noteVisisble ? 1 : 0)
+                .onHover { hovering in
+                    if note == "" {
+                        withAnimation {
+                            noteVisisble = hovering
+                        }
+                    }
+                }
             
             Spacer()
             

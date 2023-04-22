@@ -62,6 +62,7 @@ class Interpreter: ObservableObject {
     }
     
     func buildLabelMap(_ text: String) {
+        labelMap = [:]
         start(text)
         
         while running {

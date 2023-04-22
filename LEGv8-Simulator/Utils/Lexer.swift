@@ -40,7 +40,7 @@ class Lexer: ObservableObject {
         }
         
         // instruction is first item in line
-        let instruction: String = line[0].filter({ char in !specialCharacters.contains(char)})
+        let instruction: String = line[0].filter({ char in !specialCharacters.contains(char)}).lowercased()
         
         if instruction.contains("/") { // line is only comment
             cursor += 1
@@ -79,7 +79,7 @@ class Lexer: ObservableObject {
         var args: [String] = []
         
         for _arg in line[1...].map({ sub in String(sub)}) {
-            let arg = _arg.filter({ char in !specialCharacters.contains(char)}) // filter out special characters
+            let arg = _arg.filter({ char in !specialCharacters.contains(char)}).lowercased() // filter out special characters
             
             
             if arg.contains("/") { // comment

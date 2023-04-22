@@ -15,22 +15,26 @@ struct RegisterRowView: View {
     @State private var displayMode: String = "H"
     @State private var isPresented: Bool = false
     @State private var note: String = ""
-    @State private var noteVisisble: Bool = false
+    @FocusState private var noteFocused: Bool
+    @State private var noteButtonVisible: Bool = false
     
     var body: some View {
         HStack {
             Text(name)
                 .font(.custom("Menlo Regular", size: 12))
+                .frame(width: 30)
             
-            TextField("Note...", text: $note)
-                .opacity(noteVisisble ? 1 : 0)
-                .onHover { hovering in
-                    if note == "" {
-                        withAnimation {
-                            noteVisisble = hovering
-                        }
-                    }
-                }
+            Button {
+                noteFocused.toggle()
+            } label: {
+                Image(systemName: "pencil.line")
+            }
+            .buttonStyle(.borderless)
+            .opacity(noteButtonVisible ? 1 : 0)
+            
+            TextField("", text: $note)
+                .foregroundColor(.secondary)
+                .focused($noteFocused)
             
             Spacer()
             
@@ -60,7 +64,7 @@ struct RegisterRowView: View {
                 }
                 .buttonStyle(.borderless)
                 .popover(isPresented: $isPresented) {
-                    if let history = interpreter.history.registers[name]?.values.sorted { a, b in a > b } {
+                    if let history = interpreter.history.registers[name]?.values.sorted(by: { a, b in a > b }) {
                         HistoryView(displayMode: displayMode, history: history)
                             .frame(width: 500, height: 300)
                             .animation(.default, value: history)
@@ -80,6 +84,9 @@ struct RegisterRowView: View {
             .pickerStyle(.segmented)
             .frame(width: 50)
             .padding(.trailing)
+        }
+        .onHover { hovering in
+            noteButtonVisible = hovering
         }
     }
 }

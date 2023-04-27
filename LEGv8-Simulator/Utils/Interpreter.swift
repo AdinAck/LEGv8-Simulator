@@ -368,7 +368,7 @@ class Interpreter: ObservableObject {
                     for argument in arguments[1...] {
                         var num: Int64 = 0
                         if argument.contains(where: { char in char.isLetter}) {
-                            num = dataMap[argument]!
+                            num = dataMap[argument.lowercased()]!
                         } else {
                             num = try parseLiteral(argument)
                         }

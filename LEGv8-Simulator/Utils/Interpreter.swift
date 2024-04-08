@@ -109,15 +109,15 @@ class Interpreter: ObservableObject {
     }
     
     private func parseLiteral(_ raw: String) throws -> Int64 {
-        if raw.contains("x") {
-            if let literal = Int64(String(raw[raw.index(after: raw.firstIndex(of: "x")!)...]), radix: 16) {
-                return literal
-            }
-        } else {
+//        if raw.contains("x") {
+//            if let literal = Int64(String(raw[raw.index(after: raw.firstIndex(of: "x")!)...]), radix: 16) {
+//                return literal
+//            }
+//        } else {
             if let literal = Int64(raw) {
                 return literal
             }
-        }
+//        }
         
         throw AssemblerError.invalidLiteral(raw)
     }
